@@ -1861,6 +1861,11 @@ function renderGuide(){
   html+='</div>';
   html+='<div class="sync-status" id="sync-status"></div>';
   html+='<div class="note">导入说明：合并导入按 key 级「较新一方」生效（自动保留两边各自更新的部分）；覆盖导入以导入内容为准替换当前工作台。升级前的旧数据建议先用「一键迁移本机旧数据」。</div></div>';
+  html+='<div class="card"><div class="card-head"><b>分享给朋友（独立空白工作台）</b><span>数据彼此隔离</span></div>';
+  html+='<div style="padding:16px 22px;font-size:13.5px;line-height:2">想把工作台分享给朋友，但<b>不希望他看到你的数据</b>？点击下面按钮，会生成一个<b>全新的、完全空白的独立工作台链接</b>。朋友用这个链接打开后，他的所有数据与你互不可见，且他自己的手机 / 电脑也能实时同步。<br><br>请只分享由按钮生成的链接，<b>不要</b>分享地址栏里带 <code>?ws=</code> 的你自己的链接。</div>';
+  html+='<div class="btn-row"><button class="solid sm" id="share-new">生成空白分享链接</button><button class="ghost sm" id="share-back">回到我的工作台</button></div>';
+  html+='<div class="sync-hint">提示：分享链接仅含一个全新令牌，不含任何你的数据。朋友若用同一台电脑打开，请让他用浏览器无痕窗口，避免混用。</div>';
+  html+='</div>';
   html+='<div class="card"><div class="card-head"><b>数据存储方式</b><span>云端持久化</span></div>';
   html+='<div style="padding:16px 22px;font-size:13.5px;line-height:2">本工作台已升级为<b>云端在线应用</b>：所有数据（身体数据、训练目标、计划截止日期、营养素参数、每日三大营养素目标、完整饮食计划与食材库、7 天训练循环与动作、每日体重 / 步数 / 打卡、训练反馈文字与上传图片、周度复盘报告、答疑记录与所有已确认的方案修改）统一存储在<b>云端数据库</b>，按专属链接隔离，<b>不再依赖浏览器本地存储</b>。<br><br>每次录入 / 修改 / 删除都<b>自动实时上传云端</b>，无需手动点击同步；手机与电脑切换访问时自动拉取最新数据，多设备完全一致。网络不佳时先在本地暂存，恢复后自动批量补传，操作不丢失。上传的图片保存在云端对象存储，跨设备可正常加载查看。</div>';
   html+='</div>';
@@ -1882,11 +1887,28 @@ function renderGuide(){
   $('sync-replace').onclick=function(){doImport('replace');};
   $('sync-pick').onclick=function(){$('sync-file').click();};
   $('sync-file').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;var fr=new FileReader();var self=this;fr.onload=function(){$('sync-import').value=String(fr.result||'');syncStat('已读取文件，请点导入。');};fr.onerror=function(){syncStat('读取失败。',true);};fr.readAsText(f,'utf-8');self.value='';});
+  $('share-new').onclick=createShareLink;
+  $('share-back').onclick=backToMine;
   syncStats();
 }
 function copyText(t,ok){var fb=function(){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');syncStat(ok);}catch(e){syncStat('复制失败。',true);}document.body.removeChild(ta);};try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){syncStat(ok);},fb);}else fb();}catch(e){fb();}}
 function syncStat(msg,isErr){var el=$('sync-status');if(!el)return;el.className='sync-status '+(isErr?'err':'ok');el.textContent=msg;}
 function syncStats(){var p=zsGet(KEYS.PROFILE,null);var wt=zsGet(KEYS.WEIGHT,[]);var rv=zsGet(KEYS.REVIEWS,[]);var st=CLOUD.online?'云端已连接':'离线（本地缓存）';syncStat('数据状态：'+(p?'已建档':'未建档')+' · 体重 '+wt.length+' 条 · 复盘 '+rv.length+' 条 · '+st);}
+/* 生成一个全新的、独立的空白工作台链接（不含当前用户任何数据） */
+function createShareLink(){
+  if(!CLOUD.online){syncStat('当前离线，无法生成分享链接。',true);return;}
+  fetch('/api/workspace/new').then(function(r){return r.json();}).then(function(res){
+    var t=res&&res.token; if(!t){syncStat('生成失败，请稍后重试。',true);return;}
+    var url=location.origin+'/?ws='+t;
+    copyText(url,'已复制空白分享链接（独立、不含你的数据）');
+  }).catch(function(){syncStat('生成失败，请检查网络后重试。',true);});
+}
+/* 跳回当前用户自己的工作台（用本地保存的主令牌） */
+function backToMine(){
+  var t=_localGet('zs5_ws');
+  if(!t){syncStat('未找到你的工作台，将为你新建一个。');location.href=location.origin+'/';return;}
+  location.href=location.origin+'/?ws='+encodeURIComponent(t);
+}
 /* 迁移本机旧数据（升级前浏览器残留的 zs5_* / zaoshen_*）到云端 */
 function migrateLocalToCloud(){
   if(!CLOUD.token){syncStat('尚未连接云端。',true);return;}
