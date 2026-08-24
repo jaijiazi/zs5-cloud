@@ -1,0 +1,7 @@
+# zs5-cloud 部署仓库忽略项
+# data/ 含个人健身数据与上传图片，严禁入库（隐私 + 运行期自动生成）
+node_modules/
+data/
+*.log
+.DS_Store
+.gitignore.bak
