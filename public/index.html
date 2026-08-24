@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>造神计划 · 云端版</title>
+<style>
+:root{--ink:#111;--paper:#fff;--line:#e4e4e4;--hairline:#d9d9d9;--faint:#8f8f8f;--soft:#f6f6f6;--serif:Georgia,"Noto Serif SC",serif;--sans:"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;--mono:"SF Mono","JetBrains Mono","Consolas",monospace;--sb-w:240px;--sb-w-c:64px;--tb-h:62px;--c-p:#1857c2;--c-c:#d97a00;--c-f:#7a3b8f}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:15px;line-height:1.7}
+::selection{background:var(--ink);color:var(--paper)}
+#app{display:flex;min-height:100vh}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sb-w);background:var(--paper);border-right:2px solid var(--ink);z-index:40;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;transition:width .25s ease}
+#sidebar.collapsed{width:var(--sb-w-c)}
+#content{margin-left:var(--sb-w);transition:margin-left .25s ease;flex:1;min-width:0}
+#sidebar.collapsed~#content{margin-left:var(--sb-w-c)}
+.topbar{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:30}
+.topbar h1{font-family:var(--serif);font-size:22px;font-weight:900;letter-spacing:.06em}
+.topbar .tm{font-size:11px;color:var(--faint);font-family:var(--mono);letter-spacing:.1em;margin-left:auto}
+.sb-logo{padding:24px 20px 18px;font-family:var(--serif);font-size:20px;font-weight:900;letter-spacing:.12em;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden}
+#sidebar.collapsed .sb-logo{text-align:center;font-size:15px;padding:22px 0}
+.sb-nav{flex:1;padding:8px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:13px 20px;width:100%;appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:14px;color:var(--faint);border-left:3px solid transparent;transition:all .15s;white-space:nowrap;overflow:hidden;text-align:left}
+.sb-item:hover{background:var(--soft);color:var(--ink)}
+.sb-item.on{color:var(--ink);border-left-color:var(--ink);font-weight:600;background:var(--soft)}
+.sb-item svg{width:18px;height:18px;flex:none}
+.sb-item .sb-no{font-family:var(--mono);font-size:10px;opacity:.5;flex:none}
+#sidebar.collapsed .sb-item{padding:13px 0;justify-content:center;gap:0}
+#sidebar.collapsed .sb-no,#sidebar.collapsed .sb-label{display:none}
+.sb-toggle{padding:14px 20px;border-top:1px solid var(--line);appearance:none;border-left:none;border-right:none;border-bottom:none;background:var(--soft);cursor:pointer;font-family:var(--sans);font-size:12px;color:var(--faint);letter-spacing:.1em;white-space:nowrap;text-align:left}
+#sidebar.collapsed .sb-toggle{text-align:center}
+.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+section{display:none;animation:fade .25s ease}
+section.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid var(--ink);padding-bottom:10px;margin-bottom:22px;flex-wrap:wrap}
+.sec-head h2{font-family:var(--serif);font-size:24px;font-weight:900;letter-spacing:.06em}
+.sec-head .cap{font-size:11px;color:var(--faint);letter-spacing:.16em;font-family:var(--mono);text-transform:uppercase}
+.card{border:1px solid var(--hairline);background:var(--paper);margin-bottom:20px}
+.card .card-head{padding:12px 22px;border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.14em;color:var(--faint);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card .card-head b{color:var(--ink);font-size:13px;letter-spacing:.08em}
+.note{font-size:12.5px;color:var(--faint);line-height:1.8;padding:10px 22px 16px;border-top:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0}
+.kv .cell{padding:16px 22px;border-right:1px solid var(--line)}
+.kv .cell:last-child{border-right:none}
+.kv .k{font-size:11px;color:var(--faint);letter-spacing:.12em;margin-bottom:5px}
+.kv .v{font-family:var(--mono);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.kv .v small{font-size:11px;color:var(--faint);font-weight:400;margin-left:4px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 16px;padding:20px 22px}
+.field{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--faint);letter-spacing:.06em}
+.field select,.field input,.field textarea{font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--hairline);padding:9px 10px;width:100%;border-radius:0}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field textarea{min-height:64px;resize:vertical;line-height:1.6}
+.btn-row{display:flex;gap:10px;padding:0 22px 18px;flex-wrap:wrap}
+button.solid{appearance:none;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:13px;letter-spacing:.12em;padding:11px 26px;transition:all .15s}
+button.solid:hover{background:var(--paper);color:var(--ink)}
+button.ghost{appearance:none;cursor:pointer;border:1px solid var(--hairline);background:var(--paper);color:var(--faint);font-family:var(--sans);font-size:13px;letter-spacing:.12em;padding:11px 22px;transition:all .15s}
+button.ghost:hover{border-color:var(--ink);color:var(--ink)}
+button.sm{padding:7px 14px;font-size:12px}
+.macro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.macro-cell{padding:18px 22px;border-right:1px solid var(--line)}
+.macro-cell:last-child{border-right:none}
+.macro-cell .t{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.18em;margin-bottom:7px}
+.macro-cell .v{font-family:var(--mono);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.macro-cell .s{font-size:12px;color:var(--faint);margin-top:6px}
+.meal-row{display:flex;justify-content:space-between;gap:18px;padding:13px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.meal-row:last-child{border-bottom:none}
+.meal-row .mn{font-weight:700;font-size:13.5px;letter-spacing:.06em;flex:none;min-width:56px}
+.meal-row .mi{font-size:13px;color:var(--faint);text-align:left;flex:1;min-width:200px}
+.toggle-row{display:flex;gap:0;border:1px solid var(--ink);width:fit-content;margin:0 22px 18px}
+.toggle-row button{appearance:none;border:none;cursor:pointer;background:var(--paper);color:var(--faint);font-family:var(--sans);font-size:12.5px;letter-spacing:.08em;padding:9px 20px}
+.toggle-row button.on{background:var(--ink);color:var(--paper);font-weight:600}
+.warn{margin:0 22px 18px;border:1px solid var(--ink);background:var(--soft);padding:12px 15px;font-size:12.5px;line-height:1.9}
+.warn b{letter-spacing:.1em}
+.rule-list{padding:14px 22px 18px}
+.rule-list .ri{display:flex;gap:12px;padding:7px 0;font-size:13px;line-height:1.7;border-bottom:1px dashed var(--line)}
+.rule-list .ri:last-child{border-bottom:none}
+.rule-list .ri .no{font-family:var(--mono);font-size:11px;color:var(--faint);flex:none;margin-top:3px}
+.ex-row{display:flex;align-items:flex-start;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line)}
+.ex-row:last-child{border-bottom:none}
+.ex-row .cb{width:19px;height:19px;border:1.5px solid var(--ink);flex:none;margin-top:3px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--paper);background:var(--paper);cursor:pointer}
+.ex-row.done .cb{background:var(--ink)}
+.ex-row .ex-body{flex:1;min-width:0}
+.ex-row .ex-name{font-size:14px;font-weight:600}
+.ex-row .ex-detail{font-size:12px;color:var(--faint);margin-top:3px}
+.train-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));border:1px solid var(--hairline);margin-bottom:20px}
+.train-cell{padding:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:80px;cursor:pointer;transition:background .12s}
+.train-cell:hover{background:var(--soft)}
+.train-cell.rest{background:var(--soft)}
+.train-cell.on{border:2px solid var(--ink)}
+.train-cell .tc-d{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.train-cell .tc-t{font-size:13px;font-weight:600;margin-top:6px}
+.train-cell .tc-c{font-size:10px;color:var(--faint);margin-top:4px}
+.ing-row{display:flex;align-items:center;gap:10px;padding:10px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ing-row:last-child{border-bottom:none}
+.ing-row .ing-name{font-weight:600;min-width:80px}
+.ing-row .ing-stats{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.ing-row .ing-del{appearance:none;border:1px solid var(--line);background:none;cursor:pointer;font-size:11px;padding:3px 10px;color:var(--faint)}
+.ing-row .ing-del:hover{border-color:var(--ink);color:var(--ink)}
+.chart-box{padding:18px 22px 10px;overflow-x:auto}
+.weight-form{display:flex;gap:10px;padding:16px 22px 0;flex-wrap:wrap;align-items:flex-end}
+.weight-form .field{flex:1;min-width:130px}
+.wt-table{width:100%;border-collapse:collapse;font-size:13px}
+.wt-table th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--faint);padding:9px 22px;border-bottom:1px solid var(--ink);font-weight:400}
+.wt-table td{padding:10px 22px;border-bottom:1px solid var(--line);font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wt-table .del{cursor:pointer;color:var(--faint);border:1px solid var(--line);background:none;appearance:none;font-size:11px;padding:2px 10px;letter-spacing:.1em}
+.wt-table .del:hover{border-color:var(--ink);color:var(--ink)}
+.empty-tip{padding:28px 22px;text-align:center;font-size:13px;color:var(--faint)}
+.chat-box{max-height:400px;overflow-y:auto;padding:16px 22px;border-bottom:1px solid var(--line)}
+.chat-msg{padding:8px 0;font-size:13px;line-height:1.7}
+.chat-msg.sys b{font-weight:600;color:var(--ink)}
+.chat-msg.usr{color:var(--faint);padding-left:20px}
+.chat-input{display:flex;gap:10px;padding:14px 22px;flex-wrap:wrap;align-items:flex-end}
+.rv-card{border:1px solid var(--hairline);margin-bottom:14px}
+.rv-card .rc-head{padding:10px 16px;border-bottom:1px solid var(--line);background:var(--soft);display:flex;justify-content:space-between;font-size:12px;color:var(--faint)}
+.rv-card .rc-head b{color:var(--ink);font-size:13px}
+.rv-card .rc-body{padding:12px 16px;font-size:13px;line-height:1.7}
+.rv-img{max-width:120px;max-height:120px;margin:4px;border:1px solid var(--line)}
+.basis-row{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.65}
+.basis-row:last-child{border-bottom:none}
+.basis-row .bk{color:var(--faint);font-size:11px;letter-spacing:.06em;padding-top:2px}
+.basis-row .bv b{font-variant-numeric:tabular-nums}
+.strat{border:1px solid var(--ink);padding:14px 16px;margin:0 0 14px}
+.strat .st-t{font-size:11px;letter-spacing:.1em;color:var(--faint);margin-bottom:6px}
+.strat .st-n{font-size:17px;font-weight:600;font-family:var(--serif),Georgia,serif}
+.sync-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.sync-col{padding:16px 22px;border-right:1px solid var(--line)}
+.sync-col:last-child{border-right:none}
+.sync-col h4{font-size:11px;letter-spacing:.16em;color:var(--faint);margin-bottom:10px;font-family:var(--mono);font-weight:400}
+.sync-col textarea{width:100%;min-height:88px;font-family:var(--mono);font-size:11px;line-height:1.5;border:1px solid var(--hairline);padding:8px;resize:vertical;background:var(--soft);color:var(--ink);border-radius:0}
+.sync-col .btn-row{padding:10px 0 0;gap:8px}
+.sync-col .btn-row button{padding:9px 14px;font-size:12px}
+.sync-file{display:none}
+.sync-hint{font-size:12px;color:var(--faint);line-height:1.8;margin-top:10px}
+.linklike{appearance:none;background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)}
+.sync-status{padding:10px 22px;font-size:12.5px;line-height:1.7;border-top:1px solid var(--line);display:none}
+.sync-status.ok{display:block;color:var(--faint)}
+.sync-status.err{display:block;color:#a00}
+.progress-track{height:4px;background:var(--soft);border:1px solid var(--line)}
+.progress-fill{height:100%;background:var(--ink);width:0;transition:width .3s}
+.day-block{border:1px solid var(--hairline);margin-bottom:16px}
+.day-block .db-head{padding:12px 20px;border-bottom:1px solid var(--line);background:var(--soft);display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.day-block .db-head b{font-family:var(--serif);font-size:17px;letter-spacing:.04em}
+.day-block .db-head span{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.1em}
+.day-block ul{list-style:none;padding:6px 0}
+.day-block li{padding:7px 20px;font-size:13.5px;display:flex;justify-content:space-between;gap:16px;border-bottom:1px dashed var(--line)}
+.day-block li:last-child{border-bottom:none}
+.day-block li .nm{font-weight:500}
+.day-block li .dt{font-family:var(--mono);font-size:12px;color:var(--faint);white-space:nowrap}
+/* ===== V2: macro hero ===== */
+.macro-hero{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--ink);margin:16px 22px 0;background:var(--paper)}
+.mh-cell{padding:18px 16px 14px;border-right:1px solid var(--line);min-width:0}
+.mh-cell:last-child{border-right:none}
+.mh-cell .mh-t{font-size:10.5px;letter-spacing:.2em;color:var(--faint);font-family:var(--mono);margin-bottom:8px}
+.mh-cell .mh-v{font-family:var(--mono);font-size:32px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.mh-cell .mh-v small{font-size:12px;font-weight:400;color:var(--faint);margin-left:3px}
+.mh-cell .mh-s{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.6}
+.mh-cell .mh-bar{height:5px;margin-top:10px;background:var(--ink)}
+.mh-p .mh-v{color:var(--c-p)}.mh-p .mh-bar{background:var(--c-p)}
+.mh-c .mh-v{color:var(--c-c)}.mh-c .mh-bar{background:var(--c-c)}
+.mh-f .mh-v{color:var(--c-f)}.mh-f .mh-bar{background:var(--c-f)}
+/* ===== V2: sticky macro bar ===== */
+.sticky-macros{position:sticky;top:var(--tb-h);z-index:20;background:var(--paper);border:1px solid var(--ink);margin-bottom:18px;display:grid;grid-template-columns:repeat(3,1fr);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.sm-cell{padding:12px 16px;border-right:1px solid var(--line);min-width:0}
+.sm-cell:last-child{border-right:none}
+.sm-cell .sm-k{font-size:10px;letter-spacing:.16em;color:var(--faint);font-family:var(--mono);margin-bottom:4px}
+.sm-cell .sm-v{font-family:var(--mono);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.sm-cell .sm-v small{font-size:11px;font-weight:400;color:var(--faint)}
+.sm-cell .sm-s{font-size:10.5px;color:var(--faint);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sm-cell .sm-s b{font-weight:600}
+/* ===== V2: QA box ===== */
+.qa-box{border-top:1px solid var(--ink);margin:0 22px 20px;padding:14px 0 16px}
+.qa-hist{max-height:230px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--line);background:var(--soft);padding:8px 12px}
+.qa-msg{padding:5px 0;font-size:13px;line-height:1.7}
+.qa-msg.q{color:var(--faint)}
+.qa-msg.a b{color:var(--c-p)}
+.qa-form{display:flex;gap:8px;flex-wrap:wrap}
+.qa-form input{flex:1;min-width:180px;font-family:var(--sans);font-size:13px;padding:9px 10px;border:1px solid var(--hairline);background:var(--paper);color:var(--ink)}
+.qa-form input:focus{outline:none;border-color:var(--ink)}
+.qa-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.qa-chips button{appearance:none;border:1px solid var(--line);background:var(--soft);cursor:pointer;font-size:11.5px;padding:5px 10px;color:var(--faint)}
+.qa-chips button:hover{border-color:var(--ink);color:var(--ink)}
+/* ===== V2: food db dropdown ===== */
+.food-drop{position:absolute;left:0;right:0;top:100%;background:var(--paper);border:1px solid var(--ink);z-index:15;max-height:240px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.fd-item{padding:8px 12px;font-size:12.5px;cursor:pointer;border-bottom:1px solid var(--line);line-height:1.5}
+.fd-item:hover{background:var(--soft)}
+.fd-item .fd-n{font-weight:600}
+.fd-item .fd-s{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+/* ===== V2: exercise tools ===== */
+.ex-tools{display:flex;gap:6px;flex:none}
+.ex-tools button{appearance:none;border:1px solid var(--line);background:none;cursor:pointer;font-size:11px;padding:3px 9px;color:var(--faint)}
+.ex-tools button:hover{border-color:var(--ink);color:var(--ink)}
+/* ===== V2: eval modal ===== */
+.modal-ov{position:fixed;inset:0;background:rgba(17,17,17,.45);z-index:90;display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .2s ease}
+.modal-box{background:var(--paper);border:2px solid var(--ink);max-width:580px;width:100%;max-height:84vh;overflow-y:auto}
+.modal-box .mb-head{padding:14px 20px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--paper)}
+.modal-box .mb-head b{font-family:var(--serif);font-size:17px;letter-spacing:.06em}
+.modal-box .mb-close{appearance:none;border:1px solid var(--hairline);background:none;cursor:pointer;font-size:12px;padding:4px 10px;color:var(--faint)}
+.modal-box .mb-close:hover{border-color:var(--ink);color:var(--ink)}
+.ev-dim{padding:14px 20px;border-bottom:1px solid var(--line)}
+.ev-dim:last-of-type{border-bottom:none}
+.ev-dim .ed-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
+.ev-dim .ed-head b{font-size:13.5px;letter-spacing:.04em}
+.ev-score{font-family:var(--mono);font-size:11px;padding:2px 8px;border:1px solid var(--ink);white-space:nowrap;flex:none}
+.ev-score.good{background:var(--ink);color:var(--paper)}
+.ev-score.warn{border-color:var(--c-c);color:var(--c-c)}
+.ev-score.bad{border-color:#a00;color:#a00}
+.ev-dim .ed-txt{font-size:12.5px;line-height:1.7;color:#444}
+.ev-dim .ed-adv{font-size:12.5px;line-height:1.7;margin-top:8px;padding:8px 10px;background:var(--soft);border-left:3px solid var(--ink)}
+.ev-dim .ed-adv b{letter-spacing:.06em}
+.mb-foot{padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)}
+.mnav{display:none}
+@media(max-width:640px){
+  body{font-size:14.5px;padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+  #sidebar{display:none}
+  #content{margin-left:0}
+  .wrap{padding:0 16px}
+  .topbar{padding:14px 16px}
+  .topbar h1{font-size:18px}
+  .sec-head h2{font-size:20px}
+  .sec-head{padding-bottom:8px;margin-bottom:14px}
+  .card{margin-bottom:14px}
+  .card .card-head{padding:10px 16px}
+  .note{padding:8px 16px 12px}
+  .kv .cell{padding:12px 16px;border-right:none;border-bottom:1px solid var(--line)}
+  .kv{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .form-grid{grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
+  .btn-row{padding:0 16px 14px;gap:8px}
+  .btn-row button{flex:1;min-width:0;padding:11px 8px;letter-spacing:.04em}
+  .warn{margin:0 16px 14px}
+  .toggle-row{margin:0 16px 14px;width:auto}
+  .toggle-row button{padding:9px 12px;flex:1}
+  .macro-cell{padding:14px 16px;border-right:none;border-bottom:1px solid var(--line)}
+  .macro-cell .v{font-size:20px}
+  .meal-row{padding:12px 16px}
+  .meal-row .mi{min-width:0;text-align:left;flex-basis:100%}
+  .rule-list{padding:10px 16px 14px}
+  .basis-row{grid-template-columns:1fr;gap:3px}
+  .chart-box{padding:12px 16px 6px}
+  .wt-table th,.wt-table td{padding:8px 16px}
+  .train-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  .ing-row{padding:10px 16px}
+  .sync-grid{grid-template-columns:1fr}
+  .sync-col{border-right:none;border-bottom:1px solid var(--line)}
+  .sync-col:last-child{border-bottom:none}
+  .chat-input{padding:12px 16px}
+  .day-block li{padding:7px 16px}
+  .day-block .db-head{padding:10px 16px}
+  .mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--paper);border-top:2px solid var(--ink);padding-bottom:env(safe-area-inset-bottom)}
+  .mnav button{flex:1;appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:10px;letter-spacing:.02em;padding:8px 1px 9px;color:var(--faint);line-height:1.4;text-align:center}
+  .mnav button .mn-no{display:block;font-family:var(--mono);font-size:8px;opacity:.5;margin-bottom:2px}
+  .mnav button.on{color:var(--ink);font-weight:700}
+}
+/* ===== V2 mobile ===== */
+@media(max-width:640px){
+  :root{--tb-h:50px}
+  .macro-hero{grid-template-columns:1fr 1fr;margin:12px 16px 0}
+  .mh-cell{border-bottom:1px solid var(--line)}
+  .mh-cell:nth-child(2n){border-right:none}
+  .mh-cell .mh-v{font-size:24px}
+  .mh-cell .mh-s{font-size:10.5px}
+  .sticky-macros{grid-template-columns:1fr;top:var(--tb-h)}
+  .sm-cell{border-right:none;border-bottom:1px solid var(--line);padding:10px 16px}
+  .sm-cell:last-child{border-bottom:none}
+  .sm-cell .sm-s{white-space:normal}
+  .qa-box{margin:0 16px 14px}
+  .qa-hist{max-height:180px}
+  .ev-dim{padding:12px 16px}
+  .modal-ov{padding:10px}
+  .fd-item .fd-s{display:block}
+}
+/* ===== V3: today module ===== */
+.tq-strip{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 22px;border-bottom:1px solid var(--line);font-size:13px}
+.tq-strip b{font-family:var(--serif);font-size:16px;letter-spacing:.04em}
+.tq-strip .tq-sub{font-size:12px;color:var(--faint)}
+.tq-jump{appearance:none;border:1px solid var(--ink);background:var(--paper);cursor:pointer;font-size:12px;padding:6px 16px;letter-spacing:.08em;margin-left:auto}
+.tq-jump:hover{background:var(--ink);color:var(--paper)}
+.tq-sum{border-left:3px solid var(--ink);background:var(--soft);padding:12px 14px;margin:12px 22px;font-size:13px;line-height:1.9}
+.tq-sum b{letter-spacing:.04em}
+.tq-sum .tq-tom{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
+.tq-meal-li{display:flex;justify-content:space-between;gap:14px;padding:7px 22px;font-size:13px;border-bottom:1px dashed var(--line)}
+.tq-meal-li:last-child{border-bottom:none}
+.tq-meal-li .nm{font-weight:600;flex:none}
+.tq-meal-li .dt{font-family:var(--mono);font-size:11.5px;color:var(--faint);text-align:right}
+/* ===== V3: meal plan editor ===== */
+.mp-meal{border-bottom:1px solid var(--ink)}
+.mp-meal:last-child{border-bottom:none}
+.mp-meal-head{padding:10px 20px 8px;font-weight:700;font-size:13.5px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--soft);border-bottom:1px solid var(--line)}
+.mp-meal-head span{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400}
+.mp-item{display:flex;align-items:flex-end;gap:10px;padding:9px 20px;border-bottom:1px dashed var(--line);flex-wrap:wrap;position:relative}
+.mp-item:last-child{border-bottom:none}
+.mp-item .mp-n{flex:1.3;min-width:120px;position:relative}
+.mp-item .mp-n input{width:100%;font-size:13px;padding:7px 8px;border:1px solid var(--hairline);font-family:var(--sans)}
+.mp-item .mp-n input:focus{outline:none;border-color:var(--ink)}
+.mp-item .mp-g{min-width:88px}
+.mp-item .mp-g input{width:100%;font-size:13px;padding:7px 8px;border:1px solid var(--hairline);font-family:var(--mono)}
+.mp-item .mp-g input:focus{outline:none;border-color:var(--ink)}
+.mp-item .mp-info{font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.7;min-width:170px;flex:1.6}
+.mp-add{padding:8px 20px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mp-tot{padding:11px 20px;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11.5px;color:var(--faint);line-height:1.9}
+.mp-tot b{font-variant-numeric:tabular-nums}
+.mp-edit-hint{font-size:11.5px;color:var(--faint);padding:8px 20px 0;line-height:1.7}
+/* ===== V3: weekly avg + confirm ===== */
+.wk-diff{padding:12px 22px;border-top:1px solid var(--line);font-size:13px;line-height:1.9}
+.wk-diff b{font-variant-numeric:tabular-nums}
+.cf-box{padding:14px 20px;font-size:13px;line-height:1.8}
+.cf-box .cf-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sb-logo">造神计划</div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <button class="sb-toggle" id="sb-toggle">收起导航</button>
+  </aside>
+  <main id="content">
+    <header class="topbar"><h1 id="page-title">制定计划</h1><span class="tm" id="page-meta"></span></header>
+    <div class="wrap">
+      <section id="m1"></section>
+      <section id="m2"></section>
+      <section id="m3"></section>
+      <section id="m4"></section>
+      <section id="m5"></section>
+      <section id="m6"></section>
+    </div>
+  </main>
+</div>
+<nav id="mnav"></nav>
+<script>
+(function(){
+'use strict';
+
+/* ============ UTILS ============ */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function pad2(n){return n<10?'0'+n:''+n;}
+function fmtD(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+function r5(x){return Math.round(x/5)*5;}
+function r10(x){return Math.round(x/10)*10;}
+function b64e(s){return btoa(unescape(encodeURIComponent(s)));}
+function b64d(s){return decodeURIComponent(escape(atob(s)));}
+function todayStr(){var d=new Date();return fmtD(d);}
+
+/* ============ CONSTANTS ============ */
+var KEYS={
+  PROFILE:'zs5_profile',GOAL:'zs5_goal',DIET:'zs5_diet',ING:'zs5_ingredients',
+  TRAIN:'zs5_training',WEIGHT:'zs5_weight',STEPS:'zs5_steps',CHECK:'zs5_checkin',
+  REVIEWS:'zs5_reviews',WEEKLY:'zs5_weekly',MTIME:'zs5_mtime',SYNCLAST:'zs5_synclast',MIGRATED:'zs5_migrated',CYCLE:'zs5_cycle'
+};
+var SYNC_KEYS=[KEYS.PROFILE,KEYS.GOAL,KEYS.DIET,KEYS.ING,KEYS.TRAIN,KEYS.WEIGHT,KEYS.STEPS,KEYS.CHECK,KEYS.REVIEWS,KEYS.WEEKLY,KEYS.CYCLE];
+var CLOUD_URL='https://656f94dbdd6d468c885c0bb37bf8189a.app.workbuddy.link';/* 云端访问链接 */
+var NAV=[
+  ['today','01','今日任务','<svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="8" width="3" height="3" fill="currentColor"/><rect x="9" y="8" width="3" height="2" fill="currentColor"/></svg>'],
+  ['plan','02','制定计划','<svg viewBox="0 0 16 16"><path d="M11 1L15 5L7 13L3 14L4 10L11 1Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'],
+  ['diet','03','饮食计划','<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'],
+  ['train','04','训练计划','<svg viewBox="0 0 16 16"><rect x="1" y="6" width="3" height="4" fill="currentColor"/><rect x="12" y="6" width="3" height="4" fill="currentColor"/><rect x="4" y="7" width="8" height="2" fill="currentColor"/></svg>'],
+  ['trend','05','数据趋势与周度复盘','<svg viewBox="0 0 16 16"><polyline points="2,12 6,8 9,10 14,4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>'],
+  ['guide','06','使用指南','<svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="6" y1="3" x2="6" y2="13" stroke="currentColor" stroke-width="1.5"/></svg>']
+];
+var WD=['周日','周一','周二','周三','周四','周五','周六'];
+var DAY_LABELS=['第一天','第二天','第三天','第四天','第五天','第六天','第七天'];
+var DEF_PROFILE={sex:'m',age:22,height:182,weight:104.5,bf:32.5,activity:'1.375',weeklyDays:5,progress:'new',injuries:'下背部旧伤（不做深蹲/硬拉/弯腰类）；右肩袖轻度损伤（不做肩上推，控制卧推重量）'};
+var DEF_GOAL={type:'fat_loss',targetWeight:85,duration:6,weeklyDays:5,deadline:'',items:[
+  {k:'ultimate',label:'终极目标',text:'体重降至 85kg 左右（BMI 约 25.7），体脂降到 20% 以下，肌肉量保持在 65kg 以上。'},
+  {k:'year',label:'年度方向',text:'6~12 个月内分 3~4 个周期渐进减重，每个周期 6 周；周期末复盘体重、体脂与训练数据，生成下一版计划。'},
+  {k:'cycle',label:'本周期目标',text:'减重 6~8kg（周均 1~1.5kg），五练完成率不低于 90%，W6 末复测制定下一周期计划。'},
+  {k:'train',label:'训练目标',text:'第 1 周校准重量，第 2 周起双进阶，腰肩全程零疼痛。'},
+  {k:'floor',label:'执行底线',text:'睡眠不少于 7 小时，状态骤降时切换温和版饮食，任何疼痛红线立即停止。'}
+]};
+var DEF_ING=[
+  {id:'chicken',name:'鸡胸肉',cat:'蛋白',p:23,c:0,f:1,kcal:100,unit:'g',cook:'煎/煮/蒸'},
+  {id:'beef',name:'瘦牛肉',cat:'蛋白',p:20,c:0,f:5,kcal:120,unit:'g',cook:'煎/炖'},
+  {id:'egg',name:'鸡蛋',cat:'蛋白',p:13,c:1,f:11,kcal:155,unit:'g',cook:'水煮/煎'},
+  {id:'shrimp',name:'虾',cat:'蛋白',p:20,c:0,f:1,kcal:85,unit:'g',cook:'白灼/炒'},
+  {id:'oats',name:'燕麦',cat:'碳水',p:13,c:60,f:7,kcal:370,unit:'g',cook:'泡/煮'},
+  {id:'rice',name:'熟米饭',cat:'碳水',p:3,c:26,f:1,kcal:130,unit:'g',cook:'蒸'},
+  {id:'sp',name:'红薯',cat:'碳水',p:2,c:20,f:0,kcal:90,unit:'g',cook:'蒸/烤'},
+  {id:'milk',name:'脱脂牛奶',cat:'碳水',p:3.4,c:5,f:0.1,kcal:35,unit:'ml',cook:'直接饮用'},
+  {id:'broc',name:'西兰花',cat:'蔬菜',p:3,c:7,f:0,kcal:35,unit:'g',cook:'焯/炒'},
+  {id:'whey',name:'乳清蛋白粉',cat:'补剂',p:80,c:5,f:5,kcal:370,unit:'g',cook:'冲泡'},
+  {id:'oil',name:'烹饪油',cat:'脂肪',p:0,c:0,f:100,kcal:900,unit:'g',cook:'炒/拌'}
+];
+var EX_LIB=[
+  {id:'mcp',name:'器械推胸',cat:'push',part:'胸',sets:3,reps:'10-12',rest:'90-120s',rpe:'7'},
+  {id:'dbp',name:'哑铃平板卧推',cat:'push',part:'胸',sets:3,reps:'10-12',rest:'90s',rpe:'6-7'},
+  {id:'imf',name:'上斜器械推胸',cat:'push',part:'胸',sets:3,reps:'10-12',rest:'90s',rpe:'7'},
+  {id:'lpd',name:'高位下拉',cat:'pull',part:'背',sets:3,reps:'10-12',rest:'90-120s',rpe:'7'},
+  {id:'srl',name:'坐姿划船',cat:'pull',part:'背',sets:3,reps:'10-12',rest:'90-120s',rpe:'7'},
+  {id:'slr',name:'哑铃侧平举',cat:'push',part:'肩',sets:3,reps:'12-15',rest:'60s',rpe:'7'},
+  {id:'rfr',name:'绳索面拉',cat:'pull',part:'肩',sets:3,reps:'12-15',rest:'60-90s',rpe:'6'},
+  {id:'lpr',name:'腿举（倒蹬）',cat:'legs',part:'腿',sets:4,reps:'12-15',rest:'120s',rpe:'7'},
+  {id:'lex',name:'坐姿腿屈伸',cat:'legs',part:'腿',sets:3,reps:'12-15',rest:'60s',rpe:'7'},
+  {id:'ghr',name:'臀推',cat:'legs',part:'臀',sets:3,reps:'12-15',rest:'90s',rpe:'7'},
+  {id:'lcu',name:'俯卧腿弯举',cat:'legs',part:'腿',sets:3,reps:'12-15',rest:'60s',rpe:'7'},
+  {id:'tpd',name:'绳索三头下压',cat:'push',part:'三头',sets:2,reps:'12-15',rest:'60s',rpe:'7'},
+  {id:'cbp',name:'哑铃二头弯举',cat:'pull',part:'二头',sets:2,reps:'10-12',rest:'60s',rpe:'7'},
+  {id:'pcr',name:'卷腹',cat:'core',part:'核心',sets:3,reps:'15-20',rest:'45s',rpe:'7'},
+  {id:'plk',name:'平板支撑',cat:'core',part:'核心',sets:3,reps:'30-45s',rest:'45s',rpe:'7'},
+  {id:'wlk',name:'快走',cat:'cardio',part:'有氧',sets:1,reps:'20-40min',rest:'-',rpe:'-'}
+];
+var SPLITS={
+  3:[[{part:'全身A',ex:['mcp','lpd','lpr','tpd']}],[{part:'全身B',ex:['imf','srl','lex','slr','pcr']}],[{part:'全身C',ex:['dbp','lpd','ghr','rfr','plk']}]],
+  4:[[{part:'上肢推',ex:['mcp','dbp','slr','tpd']}],[{part:'上肢拉',ex:['lpd','srl','rfr','cbp']}],[{part:'下肢+核心',ex:['lpr','lex','ghr','lcu','pcr','plk']}],[{part:'补强+有氧',ex:['slr','rfr','plk','wlk']}]],
+  5:[[{part:'胸+三头',ex:['mcp','dbp','tpd']}],[{part:'背+二头',ex:['lpd','srl','cbp']}],[{part:'腿+臀',ex:['lpr','lex','ghr','lcu']}],[{part:'肩+胸',ex:['slr','imf','rfr']}],[{part:'背+核心',ex:['lpd','srl','pcr','plk','wlk']}]],
+  6:[[{part:'胸+三头',ex:['mcp','dbp','tpd']}],[{part:'背+二头',ex:['lpd','srl','cbp']}],[{part:'腿+臀',ex:['lpr','lex','ghr','lcu']}],[{part:'肩+胸',ex:['slr','imf','rfr']}],[{part:'背+核心',ex:['lpd','srl','pcr','plk']}],[{part:'有氧+补强',ex:['wlk','slr','rfr','plk']}]],
+  7:[[{part:'胸+三头',ex:['mcp','dbp','tpd']}],[{part:'背+二头',ex:['lpd','srl','cbp']}],[{part:'腿+臀',ex:['lpr','lex','ghr','lcu']}],[{part:'肩+胸',ex:['slr','imf','rfr']}],[{part:'背+核心',ex:['lpd','srl','pcr','plk']}],[{part:'腿+补强',ex:['lex','lcu','slr','rfr']}],[{part:'有氧',ex:['wlk']}]]
+};
+var DAY_MAP={3:[1,3,5],4:[1,2,4,5],5:[1,2,3,4,5],6:[1,2,3,4,5,6],7:[1,2,3,4,5,6,7]};
+
+/* ============ FOOD DB（内置食材营养知识库 · 每100g/100ml 常用参考值） ============ */
+var FOOD_DB=[
+  {name:'鸡胸肉',cat:'蛋白',p:23,c:0,f:1,kcal:104},{name:'去皮鸡腿肉',cat:'蛋白',p:19,c:0,f:8,kcal:148},
+  {name:'瘦牛肉（生）',cat:'蛋白',p:20,c:0,f:5,kcal:124},{name:'牛腱子',cat:'蛋白',p:20,c:1,f:3,kcal:112},
+  {name:'猪里脊',cat:'蛋白',p:21,c:0,f:6,kcal:146},{name:'三文鱼',cat:'蛋白',p:20,c:0,f:13,kcal:208},
+  {name:'鳕鱼',cat:'蛋白',p:18,c:0,f:1,kcal:82},{name:'巴沙鱼',cat:'蛋白',p:16,c:0,f:2,kcal:90},
+  {name:'虾',cat:'蛋白',p:20,c:0,f:1,kcal:85},{name:'金枪鱼（水浸罐头）',cat:'蛋白',p:25,c:0,f:1,kcal:105},
+  {name:'鸡蛋',cat:'蛋白',p:13,c:1,f:11,kcal:155},{name:'鸡蛋白',cat:'蛋白',p:11,c:0.7,f:0,kcal:52},
+  {name:'北豆腐',cat:'蛋白',p:10,c:3,f:5,kcal:98},{name:'豆腐干',cat:'蛋白',p:17,c:4,f:10,kcal:178},
+  {name:'无糖希腊酸奶',cat:'蛋白',p:9,c:4,f:3,kcal:80},{name:'乳清蛋白粉',cat:'补剂',p:80,c:5,f:5,kcal:373},
+  {name:'全脂牛奶',cat:'碳水',p:3.3,c:4.9,f:3.6,kcal:64},{name:'低脂牛奶',cat:'碳水',p:3.4,c:5,f:1,kcal:51},
+  {name:'脱脂牛奶',cat:'碳水',p:3.4,c:5,f:0.1,kcal:35},
+  {name:'熟米饭',cat:'碳水',p:3,c:26,f:1,kcal:130},{name:'熟糙米饭',cat:'碳水',p:3,c:23,f:1,kcal:112},
+  {name:'米线（熟）',cat:'碳水',p:2,c:25,f:0.3,kcal:110},{name:'馒头',cat:'碳水',p:7,c:47,f:1,kcal:223},
+  {name:'全麦面包',cat:'碳水',p:9,c:45,f:3,kcal:240},{name:'白面包',cat:'碳水',p:8,c:49,f:3,kcal:265},
+  {name:'燕麦',cat:'碳水',p:13,c:60,f:7,kcal:377},{name:'红薯',cat:'碳水',p:2,c:20,f:0,kcal:86},
+  {name:'土豆（熟）',cat:'碳水',p:2,c:17,f:0,kcal:80},{name:'甜玉米',cat:'碳水',p:3,c:19,f:1,kcal:86},
+  {name:'荞麦面（熟）',cat:'碳水',p:5,c:21,f:0.5,kcal:110},{name:'意大利面（熟）',cat:'碳水',p:6,c:25,f:1,kcal:131},
+  {name:'藜麦（熟）',cat:'碳水',p:4,c:21,f:2,kcal:120},
+  {name:'西兰花',cat:'蔬菜',p:3,c:7,f:0,kcal:35},{name:'菠菜',cat:'蔬菜',p:3,c:4,f:0.4,kcal:23},
+  {name:'生菜',cat:'蔬菜',p:1.5,c:2,f:0.2,kcal:15},{name:'黄瓜',cat:'蔬菜',p:0.7,c:3,f:0.2,kcal:15},
+  {name:'番茄',cat:'蔬菜',p:0.9,c:4,f:0.2,kcal:18},{name:'彩椒',cat:'蔬菜',p:1,c:6,f:0.3,kcal:26},
+  {name:'圆白菜',cat:'蔬菜',p:1.3,c:6,f:0.1,kcal:25},{name:'芦笋',cat:'蔬菜',p:2,c:2,f:0.1,kcal:20},
+  {name:'白蘑菇',cat:'蔬菜',p:3,c:3,f:0.3,kcal:22},{name:'金针菇',cat:'蔬菜',p:2.4,c:6,f:0.4,kcal:32},
+  {name:'苹果',cat:'水果',p:0.3,c:14,f:0.2,kcal:52},{name:'香蕉',cat:'水果',p:1,c:23,f:0.3,kcal:89},
+  {name:'橙子',cat:'水果',p:1,c:12,f:0.1,kcal:47},{name:'蓝莓',cat:'水果',p:0.7,c:14,f:0.3,kcal:57},
+  {name:'草莓',cat:'水果',p:0.7,c:8,f:0.3,kcal:32},{name:'猕猴桃',cat:'水果',p:1,c:15,f:0.5,kcal:61},
+  {name:'葡萄',cat:'水果',p:0.7,c:18,f:0.2,kcal:69},{name:'西瓜',cat:'水果',p:0.6,c:8,f:0.2,kcal:30},
+  {name:'桃子',cat:'水果',p:0.9,c:10,f:0.3,kcal:39},
+  {name:'烹饪油',cat:'脂肪',p:0,c:0,f:100,kcal:884},{name:'花生酱',cat:'脂肪',p:25,c:20,f:50,kcal:588},
+  {name:'杏仁',cat:'脂肪',p:21,c:22,f:50,kcal:579},{name:'核桃',cat:'脂肪',p:15,c:14,f:65,kcal:654},
+  {name:'腰果',cat:'脂肪',p:18,c:30,f:44,kcal:553},{name:'牛油果',cat:'脂肪',p:2,c:9,f:15,kcal:160},
+  {name:'方便面（面饼）',cat:'加工',p:9,c:60,f:20,kcal:460},{name:'火腿肠',cat:'加工',p:14,c:4,f:15,kcal:190},
+  {name:'速冻猪肉水饺',cat:'加工',p:8,c:22,f:6,kcal:180},{name:'薯条（炸）',cat:'加工',p:3,c:41,f:15,kcal:312},
+  {name:'可乐',cat:'加工',p:0,c:10.6,f:0,kcal:43},{name:'奶茶（全糖）',cat:'加工',p:1,c:12,f:3,kcal:80},
+  {name:'薯片',cat:'加工',p:6,c:50,f:35,kcal:536},{name:'饼干',cat:'加工',p:6,c:70,f:20,kcal:450}
+];
+function searchFood(q){
+  q=String(q||'').toLowerCase();
+  var res=[];
+  for(var i=0;i<FOOD_DB.length&&res.length<8;i++){if(FOOD_DB[i].name.toLowerCase().indexOf(q)>=0)res.push(FOOD_DB[i]);}
+  return res;
+}
+
+/* ============ STORE（云端适配器 · 脱离纯本地存储） ============ *
+ * 数据以 key→JSON 字符串存于内存 DB，mt 记录每 key 的最后修改时间（mtime）。
+ * 每次写操作：更新内存+本地镜像(localStorage 兜底)→标记脏→防抖上报云端；
+ * 云端按 key 级 mtime 合并（较新方胜），实现多设备实时同步。
+ * 弱网：上报失败保留脏标记并退避重试；云端不可达时仅用本地镜像，恢复后自动批量同步。
+ */
+var mt={};
+try{mt=JSON.parse(localStorage.getItem(KEYS.MTIME)||'{}')||{};}catch(e){mt={};}
+var DB={};
+var CLOUD={token:null,online:true,ready:false};
+function zsGet(key,def){try{var v=DB[key];if(v==null)return def;return JSON.parse(v);}catch(e){return def;}}
+function zsSet(key,val){try{DB[key]=JSON.stringify(val);mt[key]=Date.now();_saveMirror();_mark(key);}catch(e){}}
+function zsTouch(key){mt[key]=Date.now();_saveMirror();_mark(key);}
+/* ---- 本地镜像（弱网/离线兜底，非主存储） ---- */
+function _localGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function _localSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function _mirrorKeys(){return SYNC_KEYS.concat([KEYS.MTIME,KEYS.MIGRATED,KEYS.SYNCLAST]);}
+function _saveMirror(){try{_mirrorKeys().forEach(function(k){if(k in DB)_localSet(k,DB[k]);});_localSet(KEYS.MTIME,JSON.stringify(mt));}catch(e){}}
+function _loadMirror(){try{SYNC_KEYS.concat([KEYS.MIGRATED,KEYS.SYNCLAST]).forEach(function(k){var v=_localGet(k);if(v!=null)DB[k]=v;});var m=JSON.parse(_localGet(KEYS.MTIME)||'{}');if(m&&typeof m==='object')mt=m;}catch(e){}}
+/* ---- 令牌与云端连接 ---- */
+function _tokenFromURL(){try{var u=new URL(location.href);var w=u.searchParams.get('ws');if(w)return w;var h=u.hash.match(/ws=([^&]+)/);return h?h[1]:null;}catch(e){return null;}}
+function _setURLToken(t){try{var u=new URL(location.href);u.searchParams.set('ws',t);history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(e){}}
+function _createWS(){return fetch('/api/workspace/new').then(function(r){return r.json();}).then(function(res){return res.token;});}
+/* ---- 上报 / 拉取 ---- */
+var _dirty={},_pushT=null,_retryT=null,_sending=false;
+function _mark(k){_dirty[k]=true;if(_pushT||_sending)return;_pushT=setTimeout(_flush,500);}
+function _flush(){_pushT=null;var keys=Object.keys(_dirty);if(!keys.length)return;_dirty={};if(!CLOUD.token||!CLOUD.online){scheduleRetry();return;}_send(keys);}
+function _send(keys){
+  if(_sending){keys.forEach(function(k){_dirty[k]=true;});scheduleRetry();return;}
+  _sending=true;
+  var data={},m={};keys.forEach(function(k){data[k]=DB[k];m[k]=mt[k];});
+  fetch('/api/workspace/'+encodeURIComponent(CLOUD.token),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:data,mt:m})})
+    .then(function(r){return r.json();})
+    .then(function(res){_sending=false;CLOUD.online=true;_reconcile(res.data,res.mt);_setCloudStatus('ok');})
+    .catch(function(){_sending=false;keys.forEach(function(k){_dirty[k]=true;});scheduleRetry();_setCloudStatus('err');});
+}
+function scheduleRetry(){if(_retryT)return;_retryT=setTimeout(function(){_retryT=null;if(CLOUD.online)_flush();},5000);}
+function _reconcile(sdata,smt){if(!sdata)return;var changed=false;Object.keys(smt||{}).forEach(function(k){var sm=smt[k]||0,lm=mt[k]||0;if(sm>lm){mt[k]=sm;DB[k]=sdata[k];changed=true;}});if(changed){try{refreshAll();}catch(e){}}}
+function _pull(){if(!CLOUD.token||!CLOUD.online)return;fetch('/api/workspace/'+encodeURIComponent(CLOUD.token)).then(function(r){return r.json();}).then(function(res){CLOUD.online=true;_reconcile(res.data,res.mt);_setCloudStatus('ok');}).catch(function(){CLOUD.online=false;_setCloudStatus('local');});}
+function _setCloudStatus(s){var el=document.getElementById('cloud-status');if(!el){el=document.createElement('div');el.id='cloud-status';el.style.cssText='position:fixed;right:12px;top:10px;z-index:60;font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(0,0,0,.05);color:#3a7;letter-spacing:.02em';document.body.appendChild(el);}var map={ok:'☁ 已同步云端',err:'⚠ 同步失败·重试中',local:'⚡ 离线·本地保存'};el.textContent=map[s]||'';el.style.color=(s==='err')?'#a00':(s==='local')?'#a5631a':'#3a7';}
+/* ---- 启动：取令牌→拉取云端（失败则本地镜像）→渲染 ---- */
+function cloudInit(done){
+  CLOUD.token=_tokenFromURL()||_localGet('zs5_ws')||null;
+  var boot=function(){_loadAndRender(done);};
+  if(!CLOUD.token){_createWS().then(function(t){CLOUD.token=t;_localSet('zs5_ws',t);_setURLToken(t);boot();}).catch(function(){boot();});}
+  else{_localSet('zs5_ws',CLOUD.token);boot();}
+}
+function _loadAndRender(done){
+  if(!CLOUD.token){_loadMirror();CLOUD.online=false;_setCloudStatus('local');done();return;}
+  fetch('/api/workspace/'+encodeURIComponent(CLOUD.token)).then(function(r){return r.json();}).then(function(res){
+    Object.keys(res.data||{}).forEach(function(k){DB[k]=res.data[k];});
+    Object.keys(res.mt||{}).forEach(function(k){mt[k]=res.mt[k]||0;});
+    _saveMirror();CLOUD.online=true;_setCloudStatus('ok');done();
+  }).catch(function(){CLOUD.online=false;_loadMirror();_setCloudStatus('local');done();});
+}
+/* 网络事件：恢复即拉取+补发；切后台回前台拉取；定时保活 */
+try{
+  window.addEventListener('online',function(){CLOUD.online=true;_pull();_flush();});
+  window.addEventListener('offline',function(){CLOUD.online=false;_setCloudStatus('local');});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)_pull();});
+  window.addEventListener('focus',function(){_pull();});
+  setInterval(_pull,30000);
+}catch(e){}
+/* ---- 图片上传（云端对象存储，失败回退 base64 本地） ---- */
+function uploadImage(file){
+  return new Promise(function(resolve){
+    if(!CLOUD.token||!navigator.onLine){var fr0=new FileReader();fr0.onload=function(){resolve(fr0.result);};fr0.readAsDataURL(file);return;}
+    var fd=new FormData();fd.append('file',file,file.name);
+    var xhr=new XMLHttpRequest();xhr.open('POST','/api/upload/'+encodeURIComponent(CLOUD.token));
+    xhr.onload=function(){try{var r=JSON.parse(xhr.responseText);if(r&&r.url)resolve(r.url);else throw 0;}catch(e){var fr=new FileReader();fr.onload=function(){resolve(fr.result);};fr.readAsDataURL(file);}};
+    xhr.onerror=function(){var fr=new FileReader();fr.onload=function(){resolve(fr.result);};fr.readAsDataURL(file);};
+    xhr.send(fd);
+  });
+}
+
+/* ============ CALC ============ */
+function calcBMR(p){var w=parseFloat(p.weight)||70,h=parseFloat(p.height)||170,a=parseInt(p.age)||25,m=p.sex==='m';return Math.round(10*w+6.25*h-5*a+(m?5:-161));}
+function calcTDEE(bmr,act,isT){var a=parseFloat(act)||1.375;return Math.round(bmr*(isT?(a+0.10):Math.max(a-0.05,1.05)));}
+function calcGap(profile){
+  var w=parseFloat(profile.weight)||70,h=parseFloat(profile.height)||170,m=profile.sex==='m',age=parseInt(profile.age)||25;
+  var bfRaw=parseFloat(profile.bf),bmi=w/((h/100)*(h/100)),act=parseFloat(profile.activity)||1.375,freq=parseInt(profile.weeklyDays)||0,prog=profile.progress||'new';
+  var bmr=calcBMR(profile),tdeeT=calcTDEE(bmr,act,true),tdeeR=calcTDEE(bmr,act,false),avgTDEE=(tdeeT+tdeeR)/2;
+  var reasons=[],bfKnown=isFinite(bfRaw)&&bfRaw>=3,fatLevel;
+  if(bfKnown){fatLevel=(bfRaw>=(m?28:35))?'high':(bfRaw>=(m?20:28))?'mid':'low';
+    reasons.push('体脂率 '+bfRaw+'%（'+(fatLevel==='high'?'偏高':fatLevel==='mid'?'中等':'偏低')+'）'+(fatLevel==='high'?'：可承受较大热量缺口':fatLevel==='mid'?'：中等缺口兼顾保肌':'：缺口需收窄'));}
+  else{fatLevel=bmi>=(m?30:28)?'high':(bmi>=24?'mid':'low');
+    reasons.push('未填体脂率，按 BMI '+bmi.toFixed(1)+' 评估'+(fatLevel==='high'?'（肥胖区间）：可承受较大缺口':fatLevel==='mid'?'（超重区间）：中等缺口':'（正常区间）：缺口收窄'));}
+  var basePct=fatLevel==='high'?0.24:fatLevel==='mid'?0.20:0.15;
+  if(freq>=5)reasons.push('每周训练 '+freq+' 次：训练量大，缺口上限 TDEE 25%');
+  else if(freq>=3)reasons.push('每周训练 '+freq+' 次：中等训练量');
+  else reasons.push('每周训练 '+freq+' 次：缺口主要靠饮食');
+  var pct=basePct;
+  if(prog==='plateau'){pct+=0.02;reasons.push('平台期：缺口上调 2%');}
+  if(prog==='long'){pct-=0.03;reasons.push('长期减脂：代谢适应，缺口下调 3%');}
+  pct=Math.max(Math.min(pct,0.25),0.13);
+  var cut=Math.round(Math.min(Math.max(pct*avgTDEE,300),1100));
+  return{bmr:bmr,tdeeT:tdeeT,tdeeR:tdeeR,avgTDEE:Math.round(avgTDEE),cut:cut,pct:pct,fatLevel:fatLevel,reasons:reasons,bmi:bmi,bfKnown:bfKnown,bfRaw:bfRaw};
+}
+function calcMacros(profile,gap,isT){
+  var w=parseFloat(profile.weight)||70,freq=parseInt(profile.weeklyDays)||0,m=profile.sex==='m';
+  var pk=gap.pct>=0.24?2.0:1.8,p=Math.min(Math.round(pk*w),230),f=Math.max(Math.round(0.55*w),40);
+  var tdee=isT?gap.tdeeT:gap.tdeeR,cut=isT?gap.cut:Math.round(gap.cut*0.9),cal=tdee-cut;
+  var floor=m?(isT?1500:1400):(isT?1250:1200),warns=[];
+  if(cal<floor){cal=floor;warns.push((isT?'训练日':'休息日')+'热量已到安全下限');}
+  var c=Math.round((cal-4*p-9*f)/4);
+  if(isT&&c<60){c=60;warns.push('训练日碳水已到下限');}
+  if(!isT&&c<50)c=50;
+  return{cal:cal,p:p,c:c,f:f,warns:warns,pk:pk};
+}
+
+/* ============ DIET GEN（仅从用户食材库匹配 + 每周轮换 + 结构化可编辑食谱） ============ */
+function findIng(ings,pred){for(var i=0;i<ings.length;i++)if(pred(ings[i]))return ings[i];return null;}
+function genMeals(macros,ingredients){
+  var p=macros.p,c=macros.c,f=macros.f;
+  var ings=(ingredients&&ingredients.length)?ingredients:DEF_ING;
+  function byId(id){for(var i=0;i<ings.length;i++)if(ings[i].id===id)return ings[i];return null;}
+  function byName(kw){for(var i=0;i<ings.length;i++)if(ings[i].name.indexOf(kw)>=0)return ings[i];return null;}
+  var egg=byId('egg')||byName('鸡蛋');
+  var milk=byId('milk')||byName('牛奶');
+  var oats=byId('oats')||byName('燕麦');
+  var prots=ings.filter(function(x){return x.cat==='蛋白'&&x.p>=15&&x!==egg;});
+  var carbs=ings.filter(function(x){return x.cat==='碳水'&&x.c>=15&&x!==milk&&x!==oats;});
+  if(!prots.length)prots=[{name:'鸡胸肉',p:23,c:0,f:1,kcal:104}];
+  if(!carbs.length)carbs=[{name:'熟米饭',p:3,c:26,f:1,kcal:130}];
+  var wkIdx=Math.floor(Date.now()/604800000);/* 每周轮换种子 */
+  var mainP=prots[wkIdx%prots.length],mainC=carbs[wkIdx%carbs.length],dinP=prots[(wkIdx+1)%prots.length];
+  var veg=findIng(ings,function(x){return x.cat==='蔬菜';});
+  var oil=byId('oil')||byName('油');
+  var whey=byId('whey')||byName('蛋白粉');
+  function mk(src,gram,note,fixed){return {name:src.name,gram:Math.round(gram),p:src.p||0,c:src.c||0,f:src.f||0,kcal:src.kcal||0,note:note||'',fixed:!!fixed};}
+  /* 早餐：蛋+奶+燕麦（蛋/奶为固定份量，蛋白缺口由补剂补足；食材库缺少则回退蛋白+碳水主食） */
+  var bf=[];
+  if(egg&&milk&&oats){
+    var oatsG=r5(Math.min(Math.max((c*0.28-(milk.c||5)*2.5)/((oats.c||60)/100),30),100));
+    bf.push(mk(egg,100,'约2个·固定份量',true));
+    bf.push(mk(milk,250,'固定份量',true));
+    bf.push(mk(oats,oatsG,''));
+  }else{
+    bf.push(mk(mainP,Math.min(Math.max(p*0.25/((mainP.p||20)/100),40),250)));
+    bf.push(mk(mainC,Math.max(c*0.28/((mainC.c||25)/100),40)));
+  }
+  /* 午餐：蛋白+碳水+蔬菜+油 */
+  var lu=[mk(mainP,Math.min(Math.max(p*0.40/((mainP.p||20)/100),40),300)),mk(mainC,Math.max(c*0.40/((mainC.c||25)/100),50))];
+  if(veg)lu.push(mk(veg,150,'不限量'));
+  if(oil)lu.push(mk(oil,Math.min(Math.max(f/3,5),15),'烹调用'));
+  /* 晚餐：轮换蛋白+碳水+蔬菜 */
+  var dn=[mk(dinP,Math.min(Math.max(p*0.30/((dinP.p||20)/100),40),300),'本周轮换'),mk(mainC,Math.max(c*0.28/((mainC.c||25)/100),40))];
+  if(veg)dn.push(mk(veg,150,'不限量'));
+  var mealPlan=[{k:'早餐',key:'breakfast',items:bf},{k:'午餐',key:'lunch',items:lu},{k:'晚餐',key:'dinner',items:dn}];
+  recalcPlan(mealPlan,{p:p,c:c,f:f});
+  /* 补剂：按剩余蛋白量补足 */
+  var su=[],tot0=planTotals(mealPlan),remP=p-tot0.p;
+  if(whey&&remP>3)su.push(mk(whey,r5(remP/((whey.p||80)/100)),''));
+  if(su.length)mealPlan.push({k:'补剂',key:'supplement',items:su});
+  return planToText(mealPlan,{p:p,c:c,f:f});
+}
+/* 食材分类：p蛋白类 c碳水类 f脂肪类 x固定（蔬果/奶等） */
+function itemClass(it){
+  if((it.f||0)>=40)return 'f';
+  if((it.p||0)>=8&&(it.p||0)>(it.c||0))return 'p';
+  if((it.c||0)>=12)return 'c';
+  return 'x';
+}
+function planTotals(mealPlan){
+  var t={p:0,c:0,f:0,kcal:0};
+  mealPlan.forEach(function(m){m.items.forEach(function(it){t.p+=(it.p||0)*(it.gram||0)/100;t.c+=(it.c||0)*(it.gram||0)/100;t.f+=(it.f||0)*(it.gram||0)/100;t.kcal+=(it.kcal||0)*(it.gram||0)/100;});});
+  t.p=Math.round(t.p);t.c=Math.round(t.c);t.f=Math.round(t.f);t.kcal=Math.round(t.kcal);
+  return t;
+}
+/* 按当日三大营养素总目标重算各食材推荐克重：同类食材保持相对比例、整体缩放到餐级目标。
+   目标先扣除"旁路营养素"——固定类（蔬果/奶/脂肪/固定份量）自带的蛋白与碳水、碳水类自带的蛋白——避免重复计入导致总量超标 */
+function recalcPlan(mealPlan,targets){
+  var shares={breakfast:[.25,.28],lunch:[.40,.40],dinner:[.30,.28],supplement:[.05,.04]};
+  mealPlan.forEach(function(m){
+    var sh=shares[m.key]||[.25,.25];
+    var tp=targets.p*sh[0],tc=targets.c*sh[1];
+    var fixP=0,fixC=0;
+    m.items.forEach(function(it){var cl=itemClass(it);if(it.fixed||cl==='x'||cl==='f'){fixP+=(it.p||0)*(it.gram||0)/100;fixC+=(it.c||0)*(it.gram||0)/100;}});
+    /* ① 碳水类先缩放：餐级碳水目标扣除固定类自带碳水 */
+    var curC=0;
+    m.items.forEach(function(it){if(!it.fixed&&itemClass(it)==='c')curC+=(it.c||0)*(it.gram||0)/100;});
+    var tcNet=tc-fixC;
+    if(curC>0&&tcNet>0)m.items.forEach(function(it){if(!it.fixed&&itemClass(it)==='c')it.gram=Math.max(10,Math.min(600,r5(it.gram*tcNet/curC)));});
+    /* ② 蛋白类后缩放：餐级蛋白目标扣除固定类+碳水类（缩放后）带来的蛋白 */
+    var sideP=fixP;
+    m.items.forEach(function(it){if(!it.fixed&&itemClass(it)==='c')sideP+=(it.p||0)*(it.gram||0)/100;});
+    var curP=0;
+    m.items.forEach(function(it){if(!it.fixed&&itemClass(it)==='p')curP+=(it.p||0)*(it.gram||0)/100;});
+    var tpNet=tp-sideP;
+    if(curP>0&&tpNet>0)m.items.forEach(function(it){if(!it.fixed&&itemClass(it)==='p')it.gram=Math.max(10,Math.min(600,r5(it.gram*tpNet/curP)));});
+    /* 脂肪类与固定份量（蛋/奶/蔬果）保持原克重 */
+  });
+  return mealPlan;
+}
+function planToText(mealPlan){
+  function txt(m){return m.items.map(function(it){return it.name+' '+it.gram+'g'+(it.note?'（'+it.note+'）':'');}).join(' + ');}
+  var out={};
+  mealPlan.forEach(function(m){out[m.key]=txt(m);});
+  out.plan=mealPlan;
+  out.totals=planTotals(mealPlan);
+  return out;
+}
+
+/* ============ TRAINING GEN ============ */
+function genTrainingPlan(profile){
+  var days=parseInt(profile.weeklyDays)||3;
+  var split=SPLITS[days]||SPLITS[3],indices=DAY_MAP[days]||DAY_MAP[3],plan=[],si=0;
+  for(var i=1;i<=7;i++){
+    if(indices.indexOf(i)>=0&&si<split.length){
+      var dp=split[si],exs=dp[0].ex.map(function(id){
+        var ex=EX_LIB.find(function(e){return e.id===id;});
+        return ex?{id:ex.id,name:ex.name,part:ex.part,sets:ex.sets,reps:ex.reps,weight:'',rest:ex.rest,rpe:ex.rpe}:null;
+      }).filter(function(e){return e!==null;});
+      plan.push({day:i,isTraining:true,bodyPart:dp[0].part,title:dp[0].part,exercises:exs});
+      si++;
+    }else{plan.push({day:i,isTraining:false,bodyPart:'休息',title:'休息',exercises:[]});}
+  }
+  return plan;
+}
+function rebalancePlan(plan){
+  var issues=[];
+  for(var i=0;i<plan.length;i++){
+    if(!plan[i].isTraining)continue;
+    var prev=i>0?plan[i-1]:null,next=i<6?plan[i+1]:null;
+    if(prev&&prev.isTraining&&prev.bodyPart===plan[i].bodyPart)issues.push(DAY_LABELS[plan[i].day-1]+' 与 '+DAY_LABELS[prev.day-1]+' 连续练同一部位（'+plan[i].bodyPart+'）');
+    if(plan[i].exercises.length>6)issues.push(DAY_LABELS[plan[i].day-1]+' 动作数偏多（'+plan[i].exercises.length+'个），建议控制在 3~6 个');
+    if(plan[i].exercises.length<2)issues.push(DAY_LABELS[plan[i].day-1]+' 动作数偏少（'+plan[i].exercises.length+'个），建议至少 2 个');
+  }
+  var tDays=plan.filter(function(d){return d.isTraining;}).length;
+  if(tDays>6)issues.push('每周训练 '+tDays+' 天，恢复日不足，建议至少 1 天完全休息');
+  return issues;
+}
+
+/* ============ NAV ============ */
+var curPage='plan';
+function initNav(){
+  var sbNav=$('sb-nav');
+  NAV.forEach(function(n){
+    var b=document.createElement('button');
+    b.className='sb-item';b.setAttribute('data-p',n[0]);
+    b.innerHTML=n[3]+'<span class="sb-no">'+n[1]+'</span><span class="sb-label">'+n[2]+'</span>';
+    b.onclick=function(){go(n[0]);};
+    sbNav.appendChild(b);
+  });
+  var mnav=$('mnav');
+  NAV.forEach(function(n){
+    var b=document.createElement('button');
+    b.innerHTML='<span class="mn-no">'+n[1]+'</span>'+n[2];
+    b.setAttribute('data-p',n[0]);
+    b.onclick=function(){go(n[0]);};
+    mnav.appendChild(b);
+  });
+  $('sb-toggle').onclick=function(){
+    $('sidebar').classList.toggle('collapsed');
+    var c=$('sidebar').classList.contains('collapsed');
+    $('sb-toggle').textContent=c?'展开导航':'收起导航';
+  };
+}
+function go(key){
+  curPage=key;
+  var titles={today:'今日任务',plan:'制定计划',diet:'饮食计划',train:'训练计划',trend:'数据趋势与周度复盘',guide:'使用指南'};
+  $('page-title').textContent=titles[key]||key;
+  document.querySelectorAll('section').forEach(function(s){s.classList.remove('show');});
+  var sec=$('m'+(NAV.findIndex(function(n){return n[0]===key;})+1));
+  if(sec)sec.classList.add('show');
+  document.querySelectorAll('.sb-item').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-p')===key);});
+  $('mnav').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-p')===key);});
+  window.scrollTo({top:0});
+}
+
+/* ============ MODULE 0: TODAY（今日任务 · 导航首位默认首页） ============ */
+function renderToday(){
+  var html='<div class="sec-head"><h2>今日任务</h2><span class="cap">TODAY</span></div>';
+  var diet=zsGet(KEYS.DIET,null);
+  var train=zsGet(KEYS.TRAIN,null);
+  var pos=cyclePos();
+  var day=train?train.find(function(d){return d.day===pos;}):null;
+  var isT=day?!!day.isTraining:true;
+  html+='<div class="tq-strip"><b>'+todayStr()+' · 循环第 '+pos+' 天</b><span class="tq-sub">'+(day?('主题：'+esc(day.title||day.bodyPart)):'尚未生成训练计划')+' · '+(isT?'训练日':'休息日')+'</span><button class="tq-jump" id="tq-go-train">查看训练计划</button></div>';
+  /* 顶部核心指标区：当日三大营养素目标（大字号分色块） */
+  if(diet){
+    var cal=isT?diet.calT:diet.calR,p=isT?diet.pT:diet.pR,c=isT?diet.cT:diet.cR,f=isT?diet.fT:diet.fR;
+    html+='<div class="macro-hero">';
+    html+='<div class="mh-cell"><div class="mh-t">今日总热量（'+(isT?'训练日':'休息日')+'）</div><div class="mh-v">'+cal+'<small>kcal</small></div><div class="mh-s">TDEE − 缺口 '+diet.cut+'kcal</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-p"><div class="mh-t">蛋白质</div><div class="mh-v">'+p+'<small>g</small></div><div class="mh-s">保肌 · 饱腹感最强</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-c"><div class="mh-t">碳水</div><div class="mh-v">'+c+'<small>g</small></div><div class="mh-s">训练燃料</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-f"><div class="mh-t">脂肪</div><div class="mh-v">'+f+'<small>g</small></div><div class="mh-s">激素基线 · 不再压低</div><div class="mh-bar"></div></div>';
+    html+='</div>';
+  }else{
+    html+='<div class="empty-tip">请先到「制定计划」生成方案，今日营养素目标会显示在这里。</div>';
+  }
+  /* 中部食谱简览区 */
+  var mToday=diet?(isT?diet.mealsT:diet.mealsR):null;
+  if(mToday&&mToday.plan){
+    html+='<div class="card"><div class="card-head"><b>今日食谱简览</b><span>'+(isT?'训练日':'休息日')+'推荐 · 核心食材与参考重量</span><button class="tq-jump" id="tq-go-diet">查看完整饮食计划</button></div>';
+    mToday.plan.slice(0,3).forEach(function(meal){
+      var core=meal.items.filter(function(it){return itemClass(it)!=='x'||(it.name||'').indexOf('蛋')>=0||((it.p||0)>=3&&(it.c||0)>=4);}).slice(0,3);
+      if(!core.length)core=meal.items.slice(0,3);
+      html+='<div class="tq-meal-li"><span class="nm">'+esc(meal.k)+'</span><span class="dt">'+core.map(function(it){return esc(it.name)+' '+it.gram+'g';}).join(' · ')+'</span></div>';
+    });
+    if(mToday.plan.length>3)html+='<div class="tq-meal-li"><span class="nm">'+esc(mToday.plan[3].k)+'</span><span class="dt">'+mToday.plan[3].items.map(function(it){return esc(it.name)+' '+it.gram+'g';}).join(' · ')+'</span></div>';
+    html+='</div>';
+  }
+  /* 底部训练反馈区：图片上传 + 自然语言描述 → 当日总结 + 明日提示 */
+  var reviews=zsGet(KEYS.REVIEWS,[]);
+  var todayRv=reviews.filter(function(r){return r.date===todayStr()&&r.type==='daily';});
+  html+='<div class="card"><div class="card-head"><b>训练反馈</b><span>上传截图/照片 + 自然语言描述实际完成情况</span></div>';
+  html+='<div class="chat-box" id="tq-chat">';
+  if(todayRv.length){
+    todayRv.forEach(function(r){html+='<div class="chat-msg sys"><b>已提交反馈（'+esc(r.time||'')+'）</b><br>'+r.html+'</div>';});
+    html+='<div class="chat-msg sys">今天已记录，可继续补充描述。</div>';
+  }else{
+    html+='<div class="chat-msg sys"><b>描述今天实际完成的动作、重量、组数与训练感受</b><br>例如：器械推胸 40kg×3×12，高位下拉 50kg×3×10，最后一组有点吃力，腰没问题</div>';
+  }
+  html+='</div>';
+  html+='<div class="chat-input"><div style="flex:1;min-width:230px;display:flex;flex-direction:column;gap:9px"><label class="field" style="margin:0">训练记录截图 / 身体状态照片（可选）<input type="file" id="tq-img" accept="image/*" multiple></label><label class="field" style="margin:0">训练描述<textarea id="tq-text" placeholder="如：器械推胸 40kg×3×12，坐姿划船 45kg×3×10，RPE 7，肩部无不适"></textarea></label><div id="tq-img-preview" style="display:flex;flex-wrap:wrap;gap:6px"></div></div><button class="solid" id="tq-send" style="margin-bottom:2px;align-self:flex-end">提交反馈</button></div>';
+  html+='<div class="note">提交后自动生成当日训练总结（完成度评估 / 执行建议 / 数据同步记录）与明日训练提示，并同步计入打卡、累计训练天数与周度复盘统计——无需手动二次操作。</div></div>';
+  $('m1').innerHTML=html;
+  var gt=$('tq-go-train');if(gt)gt.onclick=function(){go('train');};
+  var gd=$('tq-go-diet');if(gd)gd.onclick=function(){go('diet');};
+  var imgIn=$('tq-img');
+  var tqFiles=[];
+  if(imgIn)imgIn.addEventListener('change',function(){
+    var files=this.files,preview=$('tq-img-preview');if(!preview)return;
+    preview.innerHTML='';tqFiles=[];var over=false;
+    if(!files||!files.length)return;
+    Array.prototype.forEach.call(files,function(fl){
+      if(fl.size>5000000){over=true;return;}
+      tqFiles.push(fl);
+      var img=document.createElement('img');img.src=URL.createObjectURL(fl);img.className='rv-img';preview.appendChild(img);
+    });
+    if(over)preview.innerHTML+='<div style="color:#a00;font-size:12px">有图片超过 5MB 已跳过</div>';
+  });
+  var send=$('tq-send');
+  if(send)send.onclick=function(){
+    var txt=($('tq-text').value||'').trim();
+    if(!txt&&!tqFiles.length){alert('请描述训练情况或上传图片');return;}
+    var fin=function(urls){
+      var pv=$('tq-img-preview');
+      if(pv){var ims=pv.querySelectorAll('img');ims.forEach(function(im,i){if(urls[i])im.src=urls[i];});}
+      var out=genDailyFeedback(txt,urls,pos,day);
+      var cb=$('tq-chat');
+      if(cb){cb.innerHTML+='<div class="chat-msg usr">'+esc(txt||'（图片反馈）')+'</div><div class="chat-msg sys"><b>当日训练总结已生成</b><br>'+out.html+'</div>';cb.scrollTop=cb.scrollHeight;}
+      var ti=$('tq-text');if(ti)ti.value='';
+      if(pv)pv.innerHTML='';tqFiles=[];
+      refreshAll();
+    };
+    if(!tqFiles.length){fin([]);return;}
+    Promise.all(tqFiles.map(uploadImage)).then(fin).catch(function(){fin([]);});
+  };
+}
+/* ---- 当日训练反馈解析：完成度 / 执行建议 / 数据同步 + 明日提示 ---- */
+function genDailyFeedback(text,images,pos,day){
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE);
+  var train=zsGet(KEYS.TRAIN,[]);
+  var planned=(day&&day.isTraining&&day.exercises)?day.exercises:[];
+  var t=String(text||'');
+  var done=[];
+  planned.forEach(function(ex){
+    if(t.indexOf(ex.name)>=0){done.push(ex);return;}
+    if(ex.name.length>=3){
+      for(var i=0;i<ex.name.length-1;i++){
+        if(t.indexOf(ex.name.substr(i,2))>=0){done.push(ex);return;}
+      }
+    }
+  });
+  var wts=[],m,re=/([\u4e00-\u9fa5A-Za-z0-9]+)\s*(\d+(?:\.\d+)?)\s*(?:kg|公斤)(?:\s*[×x*]\s*(\d+)(?:\s*[×x*]\s*(\d+))?)?/g;
+  while((m=re.exec(t)))wts.push(m[0]);
+  var rpeM=t.match(/rpe\s*(\d)/i);
+  var rpe=rpeM?parseInt(rpeM[1]):null;
+  var completion=planned.length?Math.round(done.length/planned.length*100):null;
+  var inj=profile.injuries||'';
+  /* 总结生成 */
+  var h='<b>训练完成度：</b>'+(completion==null?('今日为休息日/无计划动作'+(t?'，按自述活动记录：'+esc(t.slice(0,60)):'')):(done.length+'/'+planned.length+'（'+completion+'%）'))+'<br>';
+  var advice=[];
+  if(completion!=null){
+    if(completion>=100)advice.push('全部计划动作完成：下次训练可在原重量上尝试 +2.5~5kg 或每个动作加 1 次，保持 RPE≤8。');
+    else if(completion>=60)advice.push('未完成的动作下次优先补上，已完成的动作重量维持不变。');
+    else advice.push('完成率偏低：状态不佳时以保量为主——减少组数但保持动作质量，不硬冲重量。');
+  }
+  if(rpe!=null&&rpe>=9)advice.push('RPE '+rpe+' 偏高：本周剩余训练日把强度收回 RPE 7~8。');
+  if(/疼|痛|不适/.test(t))advice.push('⚠️ 提到疼痛/不适'+(inj?'（你的伤病约束：'+esc(inj)+'）':'')+ '：相关动作先降重量或暂停，持续不适请就医检查。');
+  if(wts.length)h+='<b>记录到的负重：</b>'+wts.map(esc).join('、')+'<br>';
+  if(!wts.length&&planned.length&&completion>0)advice.push('这次没记录重量：下次把「动作+重量×组×次」一起写（如 器械推胸 40kg×3×12），周度复盘会更准。');
+  h+='<b>动作执行建议：</b>'+(advice.length?advice.join('<br>'):'按计划执行即可，注意动作质量优先于重量。')+'<br>';
+  h+='<b>数据同步：</b>已计入当日训练打卡、累计训练天数与周度复盘统计 ✓';
+  /* 明日训练提示 */
+  var nextPos=(pos%7)+1;
+  var nextDay=train.find(function(d){return d.day===nextPos;});
+  var theme=nextDay?(nextDay.title||nextDay.bodyPart):'未设置';
+  var isNextT=nextDay?!!nextDay.isTraining:false;
+  var tom='<b>明日训练提示（循环第 '+nextPos+' 天）：</b>主题 <b>'+esc(theme)+'</b>';
+  if(isNextT&&nextDay.exercises.length){
+    tom+='，共 '+nextDay.exercises.length+' 个动作：'+nextDay.exercises.map(function(e){return esc(e.name);}).join('、')+'。';
+    tom+='注意事项：RPE 控制在 8 以内'+(inj?('；'+esc(inj)):'')+'。';
+    tom+='准备建议：练前 1~2 小时补充碳水（如香蕉/燕麦），带够水，保证 7 小时以上睡眠。';
+  }else{
+    tom+='（休息日）。建议安排 20~40 分钟快走，蛋白质按目标吃满，睡足 7 小时帮助恢复。';
+  }
+  var fullHtml=h+'<div class="tq-tom">'+tom+'</div>';
+  /* 存档：reviews(type=daily) + checkin */
+  var review={date:todayStr(),type:'daily',day:'循环第'+pos+'天',dayIdx:pos,completion:completion,rpe:rpe,feeling:t,
+    summary:(completion==null?'休息日反馈':'完成度 '+(completion==null?'-':completion+'%')+'（'+done.length+'/'+planned.length+'）')+(wts.length?' · '+wts.join('、'):'')+(t?' · '+t.slice(0,80):''),
+    verdict:'当日反馈已记录',nextAction:isNextT?'明日：'+theme:'明日休息',
+    images:images||[],html:fullHtml,time:new Date().toTimeString().slice(0,5),
+    doneExercises:done.map(function(e){return e.name;}),createdAt:Date.now()};
+  var reviews=zsGet(KEYS.REVIEWS,[]);reviews.push(review);zsSet(KEYS.REVIEWS,reviews);
+  var cb2=zsGet(KEYS.CHECK,{});cb2[todayStr()]=cb2[todayStr()]||{};
+  done.forEach(function(e){cb2[todayStr()][e.name]=true;});
+  cb2[todayStr()]._daily=true;
+  zsSet(KEYS.CHECK,cb2);
+  setTimeout(checkWeekly,150);
+  return{html:fullHtml,review:review};
+}
+
+/* ============ MODULE 1: PLAN ============ */
+function renderPlan(){
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE);
+  var goal=zsGet(KEYS.GOAL,DEF_GOAL);
+  var diet=zsGet(KEYS.DIET,null);
+  var html='<div class="sec-head"><h2>制定健身饮食计划</h2><span class="cap">PLAN GENERATOR</span></div>';
+  html+='<div class="card"><div class="card-head"><b>身体数据</b><span>全局数据源</span></div>';
+  html+='<div class="form-grid">';
+  html+=fSel('pf-sex','性别',[{v:'m',t:'男'},{v:'f',t:'女'}],profile.sex);
+  html+=fNum('pf-age','年龄',profile.age,14,75);
+  html+=fNum('pf-height','身高 cm',profile.height,130,220);
+  html+=fNum('pf-weight','体重 kg',profile.weight,35,200,0.1);
+  html+=fNum('pf-bf','体脂率 %',profile.bf,3,60,0.1,'不知道可留空');
+  html+=fSel('pf-act','日常活动',[{v:'1.2',t:'久坐'},{v:'1.375',t:'轻度'},{v:'1.55',t:'中度'}],profile.activity);
+  html+=fSel('pf-freq','每周训练',[{v:'3',t:'3 次'},{v:'4',t:'4 次'},{v:'5',t:'5 次'},{v:'6',t:'6 次'},{v:'7',t:'7 次'}],String(profile.weeklyDays));
+  html+=fSel('pf-prog','减脂进度',[{v:'new',t:'刚开始'},{v:'mid',t:'进行中'},{v:'plateau',t:'平台期'},{v:'long',t:'长期'}],profile.progress);
+  html+='</div>';
+  html+='<div class="form-grid" style="padding-top:0"><label class="field" style="grid-column:1/-1">运动损伤 / 基础疾病<textarea id="pf-injuries" placeholder="如：腰部旧伤（不做深蹲硬拉）；肩袖损伤（不做肩上推）">'+esc(profile.injuries||'')+'</textarea></label></div>';
+  html+='<div class="btn-row"><button class="solid" id="pf-save">保存并生成方案</button></div>';
+  html+='<div class="note">本模块为全局数据源头：身高、体重、体脂、训练频率等修改后点击「保存并生成」，饮食与训练计划将自动刷新。</div>';
+  html+='</div>';
+  html+='<div class="card"><div class="card-head"><b>训练目标</b><span>可编辑</span></div>';
+  html+='<div class="form-grid">';
+  html+=fSel('gf-type','目标类型',[{v:'fat_loss',t:'减重'},{v:'muscle',t:'增肌'},{v:'recomp',t:'塑形'}],goal.type);
+  html+=fNum('gf-tw','目标体重 kg',goal.targetWeight,40,200,0.5);
+  html+=fNum('gf-dur','计划周期 周',goal.duration,4,24);
+  html+='<label class="field">计划截止日期（精确到日）<input id="gf-deadline" type="date" value="'+esc(goal.deadline||'')+'"></label>';
+  html+='</div>';
+  html+='<div id="goal-items" style="padding:16px 22px"></div>';
+  html+='<div class="btn-row"><button class="ghost" id="gf-edit">编辑目标</button><button class="solid" id="gf-save" style="display:none">保存目标</button><button class="ghost" id="gf-cancel" style="display:none">取消</button></div>';
+  html+='</div>';
+  if(diet){
+    var w2=parseFloat(profile.weight)||70,freq2=parseInt(profile.weeklyDays)||0;
+    var b=diet.basis||{},pkNow=b.pk||1.8;
+    var brow=function(k,v){return '<div class="basis-row"><span class="bk">'+k+'</span><span class="bv">'+v+'</span></div>';};
+    html+='<div class="card"><div class="card-head"><b>生成结果</b><span>BMR '+diet.bmr+' · 训练日 '+diet.tdeeT+' · 休息日 '+diet.tdeeR+'</span></div>';
+    html+='<div class="macro-hero">';
+    html+='<div class="mh-cell"><div class="mh-t">训练日热量</div><div class="mh-v">'+diet.calT+'<small>kcal</small></div><div class="mh-s">休息日 '+diet.calR+' kcal · 日缺口 '+diet.cut+' kcal（TDEE 的 '+Math.round(diet.pct*100)+'%）</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-p"><div class="mh-t">蛋白质</div><div class="mh-v">'+diet.pT+'<small>g/日</small></div><div class="mh-s">系数 '+pkNow+'g/kg · 保肌肉 · 饱腹感 · 产热效应</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-c"><div class="mh-t">碳水</div><div class="mh-v">'+diet.cT+'<small>g（训练日）</small></div><div class="mh-s">休息日 '+diet.cR+'g · 供训练能量 · 维持代谢</div><div class="mh-bar"></div></div>';
+    html+='<div class="mh-cell mh-f"><div class="mh-t">脂肪</div><div class="mh-v">'+diet.fT+'<small>g/日</small></div><div class="mh-s">0.55g/kg · 激素基线 · 健康必需</div><div class="mh-bar"></div></div>';
+    html+='</div>';
+    html+='<div class="strat" style="margin:18px 22px 0"><div class="st-t">饮食策略</div><div class="st-n">'+esc(diet.strategy)+'</div><div style="font-size:13px;line-height:1.7;margin-top:8px;color:#333">'+esc(diet.strategyWhy||'')+'</div></div>';
+    if(diet.warnings&&diet.warnings.length)html+='<div class="warn"><b>注意事项</b><br>'+diet.warnings.map(function(x){return '· '+esc(x);}).join('<br>')+'</div>';
+    html+='<div style="padding:14px 22px"><b style="font-size:12px;letter-spacing:.1em;color:#8f8f8f">营养素计算依据（完全透明）</b>';
+    html+=brow('蛋白质','按目标系数 <b>'+pkNow+'g/kg</b> 体重 × '+w2+'kg ≈ <b>'+diet.pT+'g/日</b>。作用：减脂期保留肌肉、三大营养素中饱腹感最强、产热效应约 20~30%（消化本身消耗其热量的两到三成）。');
+    html+=brow('碳水化合物','按训练频率 <b>'+freq2+' 次/周</b> 配置：训练日约 <b>'+(diet.cT/w2).toFixed(1)+'g/kg</b>（'+diet.cT+'g）、休息日约 <b>'+(diet.cR/w2).toFixed(1)+'g/kg</b>（'+diet.cR+'g）。作用：为训练供糖原、维持瘦素与甲状腺功能、防代谢下滑。');
+    html+=brow('脂肪','按系数 <b>0.55g/kg</b>（不低于 40g）× '+w2+'kg ≈ <b>'+diet.fT+'g/日</b>。作用：维持睾酮等基础激素分泌、脂溶性维生素吸收，是健康必需项，不建议再压低。');
+    html+=brow('总热量','Mifflin-St Jeor 公式：BMR = 10×'+w2+' + 6.25×'+(profile.height||170)+' − 5×'+(profile.age||25)+(profile.sex==='m'?'+5':'−161')+' = <b>'+diet.bmr+'</b> kcal；活动系数 <b>'+(profile.activity||1.375)+'</b>（训练日 +0.10 / 休息日 −0.05）→ TDEE 训练日 <b>'+diet.tdeeT+'</b> / 休息日 <b>'+diet.tdeeR+'</b>；减去日缺口 <b>'+diet.cut+' kcal（TDEE 的 '+Math.round(diet.pct*100)+'%）</b> → 训练日 <b>'+diet.calT+'</b> / 休息日 <b>'+diet.calR+'</b> kcal。');
+    if(diet.deadline&&diet.weeksTotal)html+=brow('周期节奏','截止日期 <b>'+esc(diet.deadline)+'</b>，总周期 <b>'+diet.weeksTotal+' 周</b>。目标要求平均每周减 <b>'+diet.paceTarget+'kg</b>；当前缺口对应约 <b>'+diet.paceCut+'kg/周</b>'+(diet.paceTarget>diet.paceCut+0.15?'（慢于要求，需增加消耗）':(diet.paceTarget<diet.paceCut-0.15?'（快于要求，可适度放松）':'，节奏匹配')+'。趋势追踪与复盘的统计周期均按此时长倒推。'));
+    if(diet.adjustedAt)html+=brow('手动调整','营养素目标已于 '+new Date(diet.adjustedAt).toLocaleDateString()+' 通过答疑窗口调整'+(diet.adjNote?'（'+esc(diet.adjNote)+'）':'')+'，已同步全平台。');
+    if(diet.reasons&&diet.reasons.length){html+='<div style="margin-top:8px"><b style="font-size:12px;letter-spacing:.1em;color:#8f8f8f">缺口评估依据</b>'+diet.reasons.map(function(r){return brow('依据',esc(r));}).join('')+'</div>';}
+    html+='</div>';
+    html+='<div class="qa-box"><div style="font-size:12px;letter-spacing:.12em;color:#8f8f8f;margin-bottom:8px">全局答疑 · 本模块任何内容都可问：身体数据、目标设定、周期安排、营养素计算逻辑、计划设计思路；涉及方案调整时会先向你确认</div><div class="qa-hist" id="qa-hist">'+qaHistHtml()+'</div><div class="qa-form"><input id="qa-input" type="text" placeholder="如：我的热量是怎么算的？周期怎么安排的？蛋白质可以降低吗？"><button class="solid sm" id="qa-send">提问</button></div><div class="qa-chips">'+['热量是怎么算的','蛋白质可以降低吗','碳水是不是太低','缺口合理吗','我的身体数据怎么样','计划周期怎么安排','训练计划的设计思路'].map(function(q){return '<button data-q="'+esc(q)+'">'+esc(q)+'</button>';}).join('')+'</div></div>';
+    html+='</div>';
+  }
+  $('m2').innerHTML=html;
+  renderGoalItems(goal);
+  $('pf-save').onclick=function(){
+    var p={sex:$('pf-sex').value,age:parseInt($('pf-age').value)||25,height:parseFloat($('pf-height').value)||170,
+      weight:parseFloat($('pf-weight').value)||70,bf:parseFloat($('pf-bf').value)||0,
+      activity:$('pf-act').value,weeklyDays:parseInt($('pf-freq').value)||3,
+      progress:$('pf-prog').value,injuries:$('pf-injuries').value};
+    zsSet(KEYS.PROFILE,p);
+    var g=zsGet(KEYS.GOAL,DEF_GOAL);
+    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||85;g.weeklyDays=p.weeklyDays;
+    var dlv=$('gf-deadline').value||'';g.deadline=dlv;
+    if(dlv){g.duration=Math.max(1,Math.round((new Date(dlv+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/604800000));}
+    else{g.duration=parseInt($('gf-dur').value)||6;}
+    zsSet(KEYS.GOAL,g);
+    generatePlans();refreshAll();
+    go('diet');
+  };
+  $('gf-edit').onclick=function(){$('goal-items').querySelectorAll('textarea').forEach(function(t){t.removeAttribute('readonly');});$('gf-edit').style.display='none';$('gf-save').style.display='inline-block';$('gf-cancel').style.display='inline-block';};
+  $('gf-cancel').onclick=function(){renderPlan();};
+  $('gf-save').onclick=function(){
+    var g=zsGet(KEYS.GOAL,DEF_GOAL);
+    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||85;
+    var dlv2=$('gf-deadline').value||'';g.deadline=dlv2;
+    if(dlv2){g.duration=Math.max(1,Math.round((new Date(dlv2+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/604800000));}
+    else{g.duration=parseInt($('gf-dur').value)||6;}
+    var its=$('goal-items').querySelectorAll('textarea');
+    its.forEach(function(t,i){if(g.items[i])g.items[i].text=t.value;});
+    zsSet(KEYS.GOAL,g);
+    var dietChk=zsGet(KEYS.DIET,null);
+    if(dietChk){generatePlans();refreshAll();}
+    else{renderPlan();}
+  };
+  bindQA();
+}
+function renderGoalItems(goal){
+  var el=$('goal-items');if(!el)return;
+  el.innerHTML='<div style="font-size:12px;letter-spacing:.12em;color:#8f8f8f;margin-bottom:10px">目标详情</div>'+
+    goal.items.map(function(it,i){
+      return '<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;letter-spacing:.08em;margin-bottom:4px">'+esc(it.label)+'</div><textarea id="gi-'+i+'" readonly style="width:100%;border:1px solid #d9d9d9;padding:8px 10px;font-size:13px;line-height:1.6;min-height:48px;resize:vertical;background:#f6f6f6">'+esc(it.text)+'</textarea></div>';
+    }).join('');
+}
+function generatePlans(){
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE);
+  var goal=zsGet(KEYS.GOAL,DEF_GOAL);
+  var gap=calcGap(profile);
+  var mT=calcMacros(profile,gap,true),mR=calcMacros(profile,gap,false);
+  var freq=parseInt(profile.weeklyDays)||0;
+  var stratName,stratWhy;
+  if(freq>=4){stratName='双档碳水分配（温和碳水循环）';stratWhy='训练日碳水高于休息日：把大部分碳水安排在训练日，为 '+freq+' 次/周的训练提供糖原支持；休息日压低碳水扩大脂肪供能窗口。';}
+  else{stratName='均衡碳水削减';stratWhy='训练频率较低，采用均衡缺口+均衡碳水即可。';}
+  if(gap.pct>=0.22&&gap.fatLevel==='high')stratWhy+=' 体脂基数较高，此缺口可在监测下执行 4~6 周。';
+  else if(gap.pct>=0.22)stratWhy+=' 属于短期冲刺用量，执行 2~4 周后复评。';
+  var warnings=(mT.warns||[]).concat(mR.warns||[]);
+  if(gap.pct>=0.22&&gap.fatLevel==='high')warnings.push('体脂偏高，此缺口可执行 4~6 周；体重降到 95kg 以下或体脂明显下降后复评');
+  if(gap.pct>=0.22&&gap.fatLevel!=='high')warnings.push('当前缺口偏大，建议连续执行不超过 2~4 周');
+  /* 截止日期倒推与节奏校验 */
+  var dl=goal.deadline||'',weeksTotal=0,paceTarget=0;
+  var paceCut=Math.round(gap.cut*7/7700*10)/10;
+  if(dl){
+    var dDays=Math.round((new Date(dl+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/86400000);
+    weeksTotal=Math.max(1,Math.round(dDays/7));
+    var wLoss=Math.max(profile.weight-(goal.targetWeight||profile.weight),0);
+    paceTarget=Math.round(wLoss/weeksTotal*10)/10;
+    if(dDays<0)warnings.push('截止日期 '+dl+' 已过期，请到「制定计划」页重新选择截止日期');
+    else if(paceTarget>1.5)warnings.push('按截止日期 '+dl+' 需平均每周减 '+paceTarget+'kg，超过安全速度（1~1.5kg/周），建议延后截止日期或调整目标体重');
+    if(paceTarget>paceCut+0.15)warnings.push('当前缺口对应约 '+paceCut+'kg/周，慢于截止日期要求的 '+paceTarget+'kg/周，建议增加步数/快走或适度扩大缺口');
+    else if(paceTarget>0&&paceTarget<paceCut-0.15)warnings.push('当前缺口对应约 '+paceCut+'kg/周，快于截止日期要求的 '+paceTarget+'kg/周，执行有余量，可适度放松饮食');
+  }
+  var ings=zsGet(KEYS.ING,DEF_ING);
+  var wkIdx=Math.floor(Date.now()/604800000);
+  var diet={bmr:gap.bmr,tdeeT:gap.tdeeT,tdeeR:gap.tdeeR,cut:gap.cut,pct:gap.pct,fatLevel:gap.fatLevel,
+    calT:mT.cal,calR:mR.cal,pT:mT.p,pR:mR.p,cT:mT.c,cR:mR.c,fT:mT.f,fR:mR.f,
+    strategy:stratName,strategyWhy:stratWhy,reasons:gap.reasons,warnings:warnings,
+    deadline:dl,weeksTotal:weeksTotal,paceTarget:paceTarget,paceCut:paceCut,startWeight:profile.weight,
+    basis:{pk:mT.pk,act:profile.activity},
+    mealWeek:wkIdx,
+    mealsT:genMeals(mT,ings),mealsR:genMeals(mR,ings),generatedAt:Date.now()};
+  zsSet(KEYS.DIET,diet);
+  if(!zsGet(KEYS.TRAIN,null))zsSet(KEYS.TRAIN,genTrainingPlan(profile));
+}
+function fSel(id,label,opts,val){return '<label class="field">'+label+'<select id="'+id+'">'+opts.map(function(o){return '<option value="'+o.v+'"'+(String(o.v)===String(val)?' selected':'')+'>'+o.t+'</option>';}).join('')+'</select></label>';}
+function fNum(id,label,val,min,max,step,ph){return '<label class="field">'+label+'<input id="'+id+'" type="number" value="'+val+'"'+(min?' min="'+min+'"':'')+(max?' max="'+max+'"':'')+(step?' step="'+step+'"':'')+(ph?' placeholder="'+ph+'"':'')+'></label>';}
+function mcell(t,v,s){return '<div class="macro-cell"><div class="t">'+esc(t)+'</div><div class="v">'+esc(v)+'</div><div class="s">'+esc(s)+'</div></div>';}
+
+/* ============ MACRO Q&A（营养素答疑 · 基于用户数据） ============ */
+var qaHist=[];
+function qaHistHtml(){
+  if(!qaHist.length)return '<div class="qa-msg q">可直接问：三大营养素会不会偏高？蛋白质可以降低吗？碳水是不是太低？缺口合理吗？我会按你的身体数据与目标作答。</div>';
+  return qaHist.map(function(m){return '<div class="qa-msg '+m.who+'">'+m.html+'</div>';}).join('');
+}
+function qaPush(who,html){qaHist.push({who:who,html:html});}
+function qaApplyHtml(a){return '<br><button class="solid sm" style="margin-top:8px" data-at="'+a.apply.type+'" data-av="'+a.apply.val+'">'+esc(a.label)+'</button>';}
+function bindQAApply(scope){
+  var root=scope||document;
+  root.querySelectorAll('[data-at]').forEach(function(btn){
+    btn.onclick=function(){
+      confirmApply({type:btn.getAttribute('data-at'),val:parseFloat(btn.getAttribute('data-av'))},btn.textContent);
+    };
+  });
+}
+/* 先确认、后执行：任何方案调整必须经用户明确同意 */
+function confirmApply(a,label,desc,custom){
+  var old=document.getElementById('cf-ov');if(old&&old.parentNode)old.parentNode.removeChild(old);
+  var ov=document.createElement('div');ov.className='modal-ov';ov.id='cf-ov';
+  var h='<div class="modal-box"><div class="mb-head"><b>确认调整方案</b><button class="mb-close" data-cl="1">关闭</button></div><div class="cf-box">即将执行：<b>'+esc(label||'方案调整')+'</b><br>'+(desc||'调整后将同步更新饮食计划、今日任务、数据趋势等全平台关联数据。')+'<div class="cf-row"><button class="solid sm" data-ok="1">确认调整</button><button class="ghost sm" data-cl="1">取消</button></div></div></div>';
+  ov.innerHTML=h;document.body.appendChild(ov);
+  function cl(){if(ov.parentNode)ov.parentNode.removeChild(ov);}
+  ov.querySelectorAll('[data-cl]').forEach(function(b){b.onclick=cl;});
+  ov.onclick=function(e){if(e.target===ov)cl();};
+  ov.querySelector('[data-ok]').onclick=function(){
+    if(a&&a.type)applyMacroAdj(a);
+    if(typeof custom==='function')custom();
+    qaPush('a','✓ 已应用调整并同步全平台（饮食计划、今日任务、数据趋势等已更新）。');
+    cl();refreshAll();
+  };
+}
+function bindQA(){
+  var send=$('qa-send'),inp=$('qa-input');if(!send)return;
+  function ask(){
+    var q=(inp.value||'').trim();if(!q)return;
+    inp.value='';
+    qaPush('q',esc(q));
+    var a=macroAnswer(q);
+    qaPush('a',a.t+(a.act?qaApplyHtml(a.act):''));
+    var h=$('qa-hist');
+    if(h){h.innerHTML=qaHistHtml();h.scrollTop=h.scrollHeight;bindQAApply(h);}
+  }
+  send.onclick=ask;
+  inp.onkeydown=function(e){if(e.key==='Enter')ask();};
+  document.querySelectorAll('.qa-chips button').forEach(function(b){b.onclick=function(){inp.value=b.getAttribute('data-q');ask();};});
+  bindQAApply();
+}
+function macroAnswer(q){
+  var diet=zsGet(KEYS.DIET,null);
+  if(!diet)return{t:'请先在上方保存身体数据并生成方案，我才有依据作答。'};
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE),w=parseFloat(profile.weight)||70;
+  var goal=zsGet(KEYS.GOAL,DEF_GOAL);
+  var b=diet.basis||{},pkNow=b.pk||1.8;
+  var freq=parseInt(profile.weeklyDays)||0;
+  var has=function(){for(var i=0;i<arguments.length;i++)if(q.indexOf(arguments[i])>=0)return true;return false;};
+  /* ---- 全局通用答疑：身体数据 / 目标 / 周期 / 训练设计 ---- */
+  if(has('身体数据','数据怎么','数据怎么样','BMI','体脂')){
+    var bmi2=profile.weight/((profile.height/100)*(profile.height/100));
+    var bfTxt=diet.bfKnown?('体脂率 '+diet.bfRaw+'%（'+(diet.fatLevel==='high'?'偏高':diet.fatLevel==='mid'?'中等':'偏低')+'）'):'未填写体脂率（按 BMI 评估）';
+    return{t:'你的身体数据：'+(profile.sex==='m'?'男':'女')+' · '+profile.age+' 岁 · '+profile.height+'cm · '+profile.weight+'kg。BMI <b>'+bmi2.toFixed(1)+'</b>（'+(bmi2>=28?'肥胖区间':bmi2>=24?'超重区间':'正常区间')+'），'+bfTxt+'。基础代谢 BMR <b>'+diet.bmr+'</b> kcal（Mifflin-St Jeor 公式），日常活动系数 '+profile.activity+'。这些数据是全平台计算的源头：改体重/体脂/活动量后，热量与营养素目标都会重算。'};
+  }
+  if(has('周期','周数','截止','倒推','多长时间','时长','节奏')){
+    var cyc='未设置截止日期，当前按 '+goal.duration+' 周规划。';
+    if(diet.deadline)cyc='截止日期 <b>'+esc(diet.deadline)+'</b>，总周期 <b>'+diet.weeksTotal+' 周</b>：目标要求平均每周减 <b>'+diet.paceTarget+'kg</b>，当前缺口对应约 <b>'+diet.paceCut+'kg/周</b>（7700kcal≈1kg 脂肪）。';
+    return{t:'周期安排逻辑：'+cyc+' 趋势统计周期、周期倒计时、周度复盘循环均按此时长自动倒推——修改截止日期后全平台联动，无需手动调整。安全速度为每周 1~1.5kg，超过会给出警告。'};
+  }
+  if(has('训练计划','设计思路','怎么安排训练','分化','练什么','训练怎么')){
+    var train=zsGet(KEYS.TRAIN,[]);
+    var tN=train.filter(function(d){return d.isTraining;}).length;
+    var parts=train.filter(function(d){return d.isTraining;}).map(function(d){return d.bodyPart;}).join('、');
+    return{t:'训练计划设计思路：按你档案「每周 '+profile.weeklyDays+' 练」生成分化，当前为 '+tN+' 个训练日（'+(parts||'无')+'）。原则：①大肌群优先（胸/背/腿热量效率最高）；②考虑伤病约束——'+esc((profile.injuries||'无')+'')+'，全部使用固定器械与安全替代动作；③7 天为一个循环、不绑定自然周，可自定义起始日与每日标题；④每次修改后自动做部位均衡/容量/恢复/目标匹配 4 维评估。'};
+  }
+  if(has('目标','体重降','减到','减重目标')){
+    return{t:'目标设定：从 '+profile.weight+'kg 到 <b>'+goal.targetWeight+'kg</b>'+(diet.deadline?('，截止 '+esc(diet.deadline)+'（'+diet.weeksTotal+' 周）'):'（按 '+goal.duration+' 周规划）')+'。终极目标是体重降至 85kg 左右、体脂 20% 以下、肌肉量 65kg 以上，分 3~4 个周期渐进完成，本周期目标可在上方「目标详情」里自由编辑。'};
+  }
+  if(has('蛋白')){
+    if(has('降低','低点','减','太多','偏高','高')){
+      var pkMin=1.6;
+      if(pkNow<=pkMin)return{t:'当前蛋白质 '+diet.pT+'g/日（'+pkNow+'g/kg），已处于减脂期下限。蛋白在热量缺口里承担"保肌肉"的安全锚作用——你体脂 30%+ 且每周 '+freq+' 练，再降会明显增加掉肌肉风险。不建议继续降。'};
+      var np=Math.max(pkNow-0.2,pkMin),npG=Math.min(Math.round(np*w),230);
+      return{t:'当前蛋白质 '+diet.pT+'g/日（'+pkNow+'g/kg×'+w+'kg）。减脂+高频训练下 1.8~2.0g/kg 是循证区间，并不算高——蛋白的饱腹感最强、产热效应最高（20~30%），是最"划算"的热量。若你仍想下调，下限为 '+pkMin+'g/kg ≈ '+npG+'g/日，保肌效果会打一定折扣。',act:{label:'调整为 '+npG+'g/日（'+np+'g/kg）',apply:{type:'pk',val:np}}};
+    }
+    return{t:'当前蛋白质 '+diet.pT+'g/日，系数 '+pkNow+'g/kg 体重。按你 '+freq+' 次/周的训练量与减脂目标，1.8~2.0g/kg 是主流循证区间：缺口状态下肌肉蛋白合成需要充足原料，且蛋白质饱腹感最强（实际吸收消耗其热量的 20~30%），帮你坚持计划。'};
+  }
+  if(has('碳水')){
+    if(has('高','太多','降低','减','砍')){
+      return{t:'训练日碳水 '+diet.cT+'g（约 '+(diet.cT/w).toFixed(1)+'g/kg）、休息日 '+diet.cR+'g。你的碳水不是热量的"大头"，而是围绕训练精确投放的燃料：训练日要支撑每周 '+freq+' 练的糖原消耗。若确实吃不下，可下调 30g/日（总热量相应 −120kcal），训练表现可能略降。',act:{label:'下调 30g/日（总热量 −120kcal）',apply:{type:'c',val:-30}}};
+    }
+    if(has('低','不够','加','提高')){
+      return{t:'训练日碳水 '+diet.cT+'g、约 '+(diet.cT/w).toFixed(1)+'g/kg。对每周 '+freq+' 次力量训练，训练日 2~3g/kg 已是合理下限——再低会影响训练质量与恢复。可上调 30g/日（总热量 +120kcal），优先加在训练前后。',act:{label:'上调 30g/日（总热量 +120kcal）',apply:{type:'c',val:30}}};
+    }
+    return{t:'训练日碳水 '+diet.cT+'g / 休息日 '+diet.cR+'g。碳水是"训练燃料"变量：训练日摄入匹配每周 '+freq+' 次训练的糖原消耗，休息日压低以扩大脂肪供能窗口——这正是「'+diet.strategy+'」的调度逻辑。'};
+  }
+  if(has('脂肪')){
+    return{t:'脂肪 '+diet.fT+'g/日（0.55g/kg，不低于 40g）。脂肪不是可随意压缩的热量余量——它维持睾酮等基础激素分泌、脂溶性维生素吸收与细胞膜结构。成年男性长期低于 0.5g/kg 会明显影响激素与体感。当前取值已在精简端，不建议再降。'};
+  }
+  if(has('缺口','热量','总摄入','怎么算')){
+    var spd=diet.deadline?('按 7700kcal≈1kg 脂肪折算，当前缺口对应约 <b>'+diet.paceCut+'kg/周</b>；截止日期 '+esc(diet.deadline)+' 要求平均 <b>'+diet.paceTarget+'kg/周</b>。'):'';
+    var chain='计算链：<b>Mifflin-St Jeor 公式</b> × 你的身体数据 → BMR <b>'+diet.bmr+'</b> kcal → 乘活动系数得双档 TDEE（训练日 <b>'+diet.tdeeT+'</b> / 休息日 <b>'+diet.tdeeR+'</b>，训练日 +10%、休息日 −5%）→ 扣掉热量缺口得每日摄入。';
+    return{t:'热量是这样算出来的：'+chain+'当前日缺口 '+diet.cut+'kcal，占 TDEE 的 '+Math.round(diet.pct*100)+'%（安全区间 13%~25%，按体脂水平定基准、平台期/长期减脂微调）。训练日摄入 '+diet.calT+'kcal、休息日 '+diet.calR+'kcal，均高于安全下限。'+spd};
+  }
+  if(has('高','偏多','过量')){
+    return{t:'先看总量：训练日 '+diet.calT+'kcal 是"TDEE '+diet.tdeeT+' 减缺口"倒推出来的，并非偏高摄入。三项里：蛋白 '+diet.pT+'g 是保肌的循证区间值；碳水 '+diet.cT+'g 用来供每周 '+freq+' 次训练；脂肪 '+diet.fT+'g 已是健康下限附近。整体不高，其中最值得保留的恰是蛋白质。可分别点上方快捷问题查看单项。'};
+  }
+  return{t:'你可以问本模块的任何内容：身体数据（BMI/体脂/BMR 怎么看）、目标设定（目标体重合理吗）、周期安排（截止日期怎么倒推）、营养素计算逻辑（热量怎么算的、蛋白质可以降低吗）、训练计划设计思路等。我会结合你的数据（'+w+'kg · 每周 '+freq+' 练 · '+(profile.sex==='m'?'男':'女')+' '+(profile.age||'?')+' 岁）给出针对性解答；若解答涉及方案调整，会先向你确认，同意后才执行并同步全平台。'};
+}
+function applyMacroAdj(a){
+  var diet=zsGet(KEYS.DIET,null);if(!diet)return;
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE),w=parseFloat(profile.weight)||70;
+  var ings=zsGet(KEYS.ING,DEF_ING);
+  if(a.type==='pk'){
+    var np=Math.max(1.2,Math.min(2.4,a.val));
+    var p=Math.min(Math.round(np*w),230),f=diet.fT;
+    diet.pT=p;diet.pR=p;
+    diet.cT=Math.max(60,Math.round((diet.calT-4*p-9*f)/4));
+    diet.cR=Math.max(50,Math.round((diet.calR-4*p-9*f)/4));
+    diet.basis=diet.basis||{};diet.basis.pk=np;
+    diet.adjNote='蛋白质调整为 '+np+'g/kg（'+p+'g/日）';
+  }else if(a.type==='c'){
+    var d=a.val;
+    diet.cT=Math.max(50,diet.cT+d);diet.cR=Math.max(40,diet.cR+d);
+    diet.calT+=4*d;diet.calR+=4*d;
+    diet.adjNote='碳水调整 '+(d>0?'+':'')+d+'g/日（总热量 '+(d>0?'+':'')+(4*d)+'kcal）';
+  }else{return;}
+  diet.adjustedAt=Date.now();
+  diet.mealsT=genMeals({p:diet.pT,c:diet.cT,f:diet.fT},ings);
+  diet.mealsR=genMeals({p:diet.pR,c:diet.cR,f:diet.fR},ings);
+  zsSet(KEYS.DIET,diet);
+}
+
+/* ============ MODULE 2: DIET ============ */
+function renderDiet(){
+  var diet=zsGet(KEYS.DIET,null);
+  var html='<div class="sec-head"><h2>饮食计划</h2><span class="cap">DIET</span></div>';
+  if(!diet){$('m3').innerHTML=html+'<div class="empty-tip">请先在「制定计划」页填写身体数据并生成方案。</div>';return;}
+  html+='<div class="sticky-macros">';
+  html+='<div class="sm-cell"><div class="sm-k">训练日热量</div><div class="sm-v">'+diet.calT+'<small> kcal</small></div><div class="sm-s"><b style="color:var(--c-p)">蛋白 '+diet.pT+'g</b> · <b style="color:var(--c-c)">碳水 '+diet.cT+'g</b> · <b style="color:var(--c-f)">脂肪 '+diet.fT+'g</b></div></div>';
+  html+='<div class="sm-cell"><div class="sm-k">休息日热量</div><div class="sm-v">'+diet.calR+'<small> kcal</small></div><div class="sm-s"><b style="color:var(--c-p)">蛋白 '+diet.pR+'g</b> · <b style="color:var(--c-c)">碳水 '+diet.cR+'g</b> · <b style="color:var(--c-f)">脂肪 '+diet.fR+'g</b></div></div>';
+  html+='<div class="sm-cell"><div class="sm-k">日缺口</div><div class="sm-v">'+diet.cut+'<small> kcal</small></div><div class="sm-s">TDEE 的 '+Math.round(diet.pct*100)+'% · BMR '+diet.bmr+'</div></div>';
+  html+='</div>';
+  html+='<div class="warn" style="margin-top:0"><b>'+esc(diet.strategy)+'</b> · '+esc(diet.strategyWhy||'')+'</div>';
+  if(diet.mealsT&&diet.mealsT.plan){html+=mealEditorHtml('T',diet);}
+  else{
+    var m=diet.mealsT;
+    html+='<div class="card"><div class="card-head"><b>三餐食谱 · 训练日</b><span>'+diet.calT+' kcal</span></div>';
+    html+=mealRow('早餐',m.breakfast)+mealRow('午餐',m.lunch)+mealRow('晚餐',m.dinner);
+    if(m.supplement)html+=mealRow('补剂',m.supplement);
+    html+='</div>';
+  }
+  if(diet.mealsR&&diet.mealsR.plan){html+=mealEditorHtml('R',diet);}
+  else{
+    var mr=diet.mealsR;
+    html+='<div class="card"><div class="card-head"><b>三餐食谱 · 休息日</b><span>'+diet.calR+' kcal</span></div>';
+    html+=mealRow('早餐',mr.breakfast)+mealRow('午餐',mr.lunch)+mealRow('晚餐',mr.dinner);
+    if(mr.supplement)html+=mealRow('补剂',mr.supplement);
+    html+='</div>';
+  }
+  if(diet.warnings&&diet.warnings.length){html+='<div class="warn"><b>注意事项</b><br>'+diet.warnings.map(function(x){return '· '+esc(x);}).join('<br>')+'</div>';}
+  var ings=zsGet(KEYS.ING,DEF_ING);
+  html+='<div class="card"><div class="card-head"><b>我的常用食材</b><span>'+ings.length+' 种</span></div>';
+  html+='<div id="ing-list">'+ings.map(function(x){return '<div class="ing-row"><span class="ing-name">'+esc(x.name)+'</span><span class="ing-stats">蛋白 '+x.p+'g · 碳水 '+x.c+'g · 脂肪 '+x.f+'g · '+x.kcal+'kcal/'+x.unit+'</span><span class="ing-stats">'+esc(x.cook)+'</span><button class="ing-del" data-id="'+esc(x.id)+'">删除</button></div>';}).join('')+'</div>';
+  html+='<div class="form-grid" style="padding-top:14px"><label class="field" style="position:relative">名称（输入自动匹配营养库）<input id="ing-name" type="text" placeholder="如：鸡胸肉 / 苹果 / 面包" autocomplete="off"><div id="ing-drop" class="food-drop" style="display:none"></div></label><label class="field">类别<select id="ing-cat"><option value="蛋白">蛋白</option><option value="碳水">碳水</option><option value="蔬菜">蔬菜</option><option value="水果">水果</option><option value="脂肪">脂肪</option><option value="加工">加工</option><option value="补剂">补剂</option></select></label><label class="field">蛋白 g/100<input id="ing-p" type="number" value="0" step="0.1"></label><label class="field">碳水 g/100<input id="ing-c" type="number" value="0" step="0.1"></label><label class="field">脂肪 g/100<input id="ing-f" type="number" value="0" step="0.1"></label><label class="field">热量 kcal/100<input id="ing-kcal" type="number" value="0" step="1"></label><label class="field">烹饪方式<input id="ing-cook" type="text" placeholder="如：煎/煮"></label></div>';
+  html+='<div class="weight-form" style="padding-top:8px"><label class="field" style="max-width:170px">常用食用量 g<input id="ing-gram" type="number" value="100" min="1" step="10"></label><div id="ing-preview" style="flex:2;min-width:220px;font-size:12.5px;color:#8f8f8f;line-height:1.8;padding-bottom:6px">输入名称自动匹配内置营养库（约 60 种常见食材）；填入食用量后自动换算实际营养值</div></div>';
+  html+='<div class="btn-row"><button class="solid sm" id="ing-add">添加食材</button></div>';
+  html+='<div class="note">内置食材营养知识库覆盖肉蛋奶、主食、蔬菜、水果与常见加工食品（数值为每 100g/100ml 常用参考值）。三餐食谱仅从「我的常用食材」中生成并每周轮换：删除某食材后，下次生成计划即不再使用。</div></div>';
+  $('m3').innerHTML=html;
+  bindMealEditor();mpUpdateDisplays('T');mpUpdateDisplays('R');
+  $('ing-add').onclick=function(){
+    var n=$('ing-name').value.trim();if(!n){alert('请输入食材名称');return;}
+    var ings2=zsGet(KEYS.ING,DEF_ING);
+    var pV=parseFloat($('ing-p').value)||0,cV=parseFloat($('ing-c').value)||0,fV=parseFloat($('ing-f').value)||0;
+    var kcalV=parseFloat($('ing-kcal').value)||0;
+    if(!kcalV)kcalV=Math.round(4*pV+4*cV+9*fV);
+    ings2.push({id:'custom_'+Date.now(),name:n,cat:$('ing-cat').value,p:pV,c:cV,f:fV,kcal:kcalV,unit:'g',cook:$('ing-cook').value||''});
+    zsSet(KEYS.ING,ings2);
+    var diet2=zsGet(KEYS.DIET,null);
+    if(diet2){var prof=zsGet(KEYS.PROFILE,DEF_PROFILE);var gap=calcGap(prof);diet2.mealsT=genMeals(calcMacros(prof,gap,true),ings2);diet2.mealsR=genMeals(calcMacros(prof,gap,false),ings2);zsSet(KEYS.DIET,diet2);}
+    renderDiet();
+  };
+  bindIngAuto();
+  document.querySelectorAll('.ing-del').forEach(function(b){b.onclick=function(){var ings2=zsGet(KEYS.ING,DEF_ING).filter(function(x){return x.id!==b.getAttribute('data-id');});zsSet(KEYS.ING,ings2);renderDiet();};});
+}
+function mealRow(n,i){return '<div class="meal-row"><span class="mn">'+esc(n)+'</span><span class="mi">'+esc(i)+'</span></div>';}
+/* ---- V3: 三餐全量编辑器（替换/增/删食材 + 按当日目标自动重算推荐克重） ---- */
+function mpDay(diet,dk){return dk==='T'?diet.mealsT:diet.mealsR;}
+function mpTargets(diet,dk){return dk==='T'?{p:diet.pT,c:diet.cT,f:diet.fT,cal:diet.calT}:{p:diet.pR,c:diet.cR,f:diet.fR,cal:diet.calR};}
+function mpSearch(q){
+  q=String(q||'').toLowerCase();var res=[];
+  var ings=zsGet(KEYS.ING,DEF_ING);
+  ings.forEach(function(x){if(x.name.toLowerCase().indexOf(q)>=0&&res.length<8)res.push({name:x.name,cat:x.cat,p:x.p,c:x.c,f:x.f,kcal:x.kcal});});
+  if(res.length<8)searchFood(q).forEach(function(f){
+    if(!res.filter(function(r){return r.name===f.name;}).length&&res.length<8)res.push(f);
+  });
+  return res;
+}
+function mealEditorHtml(dk,diet){
+  var m=mpDay(diet,dk),tg=mpTargets(diet,dk);
+  var dayName=dk==='T'?'训练日':'休息日';
+  var h='<div class="card" id="mp-card-'+dk+'"><div class="card-head"><b>三餐食谱 · '+dayName+'</b><span>目标 '+tg.cal+' kcal · 蛋白'+tg.p+'g / 碳水'+tg.c+'g / 脂肪'+tg.f+'g</span></div>';
+  h+='<div class="mp-edit-hint">三餐开放全量编辑：改写食材名（输入自动带出营养参数）、增删每餐食材、手动调克重。换食材或增删后，系统自动按当日三大营养素总目标重算各食材推荐克重。</div>';
+  m.plan.forEach(function(meal,mi){
+    h+='<div class="mp-meal"><div class="mp-meal-head"><b>'+esc(meal.k)+'</b><span id="mp-mh-'+dk+'-'+mi+'"></span></div>';
+    meal.items.forEach(function(it,ii){
+      h+='<div class="mp-item">';
+      h+='<label class="field mp-n">食材<input data-dk="'+dk+'" data-mi="'+mi+'" data-ii="'+ii+'" class="mp-name" type="text" value="'+esc(it.name)+'" autocomplete="off"></label>';
+      h+='<label class="field mp-g">克重 g<input data-dk="'+dk+'" data-mi="'+mi+'" data-ii="'+ii+'" class="mp-gram" type="number" min="5" max="1500" step="5" value="'+(it.gram||100)+'"></label>';
+      h+='<span class="mp-info" id="mp-info-'+dk+'-'+mi+'-'+ii+'"></span>';
+      h+='<span class="ex-tools"><button class="mp-del" data-dk="'+dk+'" data-mi="'+mi+'" data-ii="'+ii+'">删除</button></span>';
+      h+='</div>';
+    });
+    h+='<div class="mp-add"><button class="ghost sm mp-add-btn" data-dk="'+dk+'" data-mi="'+mi+'">＋ 添加食材</button><button class="ghost sm mp-rec-btn" data-dk="'+dk+'">按当日目标重算克重</button></div>';
+    h+='</div>';
+  });
+  h+='<div class="mp-tot" id="mp-tot-'+dk+'"></div></div>';
+  return h;
+}
+function mpRecalc(dk){
+  var diet=zsGet(KEYS.DIET,null);if(!diet)return;
+  var m=mpDay(diet,dk);if(!m||!m.plan)return;
+  var tg=mpTargets(diet,dk);
+  recalcPlan(m.plan,tg);
+  /* 补剂（高蛋白类）按剩余蛋白自动补足 */
+  m.plan.forEach(function(meal){
+    if(meal.key!=='supplement')return;
+    meal.items=meal.items.filter(function(it){return (it.p||0)>=8;});
+    if(!meal.items.length)return;
+    var tot=planTotals(m.plan),rem=tg.p-tot.p;
+    if(rem>3)meal.items.forEach(function(it){it.gram=Math.max(5,r5(rem/((it.p||80)/100)/meal.items.length));});
+  });
+  var t=planToText(m.plan);
+  m.breakfast=t.breakfast;m.lunch=t.lunch;m.dinner=t.dinner;m.supplement=t.supplement;m.totals=t.totals;
+  zsSet(KEYS.DIET,diet);
+}
+function mpUpdateDisplays(dk){
+  var diet=zsGet(KEYS.DIET,null);if(!diet)return;
+  var m=mpDay(diet,dk);if(!m||!m.plan)return;
+  m.plan.forEach(function(meal,mi){
+    var mt=planTotals([meal]);
+    var mh=$('mp-mh-'+dk+'-'+mi);
+    if(mh)mh.innerHTML='≈'+mt.kcal+' kcal · 蛋白'+mt.p+'g · 碳水'+mt.c+'g · 脂肪'+mt.f+'g';
+    meal.items.forEach(function(it,ii){
+      var el=$('mp-info-'+dk+'-'+mi+'-'+ii);
+      if(el)el.innerHTML='蛋白<b style="color:var(--c-p)">'+(it.p*it.gram/100).toFixed(1)+'g</b> · 碳水<b style="color:var(--c-c)">'+(it.c*it.gram/100).toFixed(1)+'g</b> · 脂肪<b style="color:var(--c-f)">'+(it.f*it.gram/100).toFixed(1)+'g</b> · '+Math.round(it.kcal*it.gram/100)+'kcal'+(it.note?' · '+esc(it.note):'');
+    });
+  });
+  var tg=mpTargets(diet,dk),tot=planTotals(m.plan);
+  var el=$('mp-tot-'+dk);
+  if(el)el.innerHTML='当日合计：<b>'+tot.kcal+'kcal</b>（目标 '+tg.cal+'）· 蛋白 <b style="color:var(--c-p)">'+tot.p+'g</b>/'+tg.p+' · 碳水 <b style="color:var(--c-c)">'+tot.c+'g</b>/'+tg.c+' · 脂肪 <b style="color:var(--c-f)">'+tot.f+'g</b>/'+tg.f;
+}
+function mpCloseDrop(){var d=document.getElementById('mp-drop');if(d&&d.parentNode)d.parentNode.removeChild(d);}
+function bindMealEditor(){
+  document.querySelectorAll('.mp-name').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      mpCloseDrop();
+      var q=inp.value.trim();if(!q)return;
+      var ms=mpSearch(q);if(!ms.length)return;
+      var dd=document.createElement('div');dd.className='food-drop';dd.id='mp-drop';
+      dd.innerHTML=ms.map(function(f,i){return '<div class="fd-item" data-i="'+i+'"><span class="fd-n">'+esc(f.name)+'</span> <span class="fd-s">'+esc(f.cat)+' · 每100g：蛋白 '+f.p+'g · 碳水 '+f.c+'g · 脂肪 '+f.f+'g · '+f.kcal+'kcal</span></div>';}).join('');
+      inp.parentNode.appendChild(dd);
+      dd.querySelectorAll('.fd-item').forEach(function(it){
+        it.onclick=function(){
+          var f=ms[parseInt(it.getAttribute('data-i'))];
+          var dk=inp.getAttribute('data-dk'),mi=parseInt(inp.getAttribute('data-mi')),ii=parseInt(inp.getAttribute('data-ii'));
+          var diet=zsGet(KEYS.DIET,null);
+          var m=mpDay(diet,dk);
+          if(m&&m.plan&&m.plan[mi]){
+            var item=m.plan[mi].items[ii];
+            if(item){item.name=f.name;item.p=f.p;item.c=f.c;item.f=f.f;item.kcal=f.kcal;if(!item.gram)item.gram=100;}
+            zsSet(KEYS.DIET,diet);
+            mpRecalc(dk);/* 换食材后自动按当日目标重算推荐克重 */
+          }
+          renderDiet();
+        };
+      });
+    });
+    inp.addEventListener('blur',function(){setTimeout(mpCloseDrop,180);});
+  });
+  document.querySelectorAll('.mp-gram').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var dk=inp.getAttribute('data-dk'),mi=parseInt(inp.getAttribute('data-mi')),ii=parseInt(inp.getAttribute('data-ii'));
+      var g=parseFloat(inp.value);
+      var diet=zsGet(KEYS.DIET,null);var m=mpDay(diet,dk);
+      if(m&&m.plan&&m.plan[mi]&&m.plan[mi].items[ii]&&isFinite(g)&&g>=0){
+        m.plan[mi].items[ii].gram=Math.round(g);
+        var t=planToText(m.plan);
+        m.breakfast=t.breakfast;m.lunch=t.lunch;m.dinner=t.dinner;m.supplement=t.supplement;m.totals=t.totals;
+        zsSet(KEYS.DIET,diet);
+        mpUpdateDisplays(dk);
+      }
+    });
+  });
+  document.querySelectorAll('.mp-del').forEach(function(b){b.onclick=function(){
+    var dk=b.getAttribute('data-dk'),mi=parseInt(b.getAttribute('data-mi')),ii=parseInt(b.getAttribute('data-ii'));
+    var diet=zsGet(KEYS.DIET,null);var m=mpDay(diet,dk);
+    if(m&&m.plan&&m.plan[mi]){m.plan[mi].items.splice(ii,1);zsSet(KEYS.DIET,diet);mpRecalc(dk);}
+    renderDiet();
+  };});
+  document.querySelectorAll('.mp-add-btn').forEach(function(b){b.onclick=function(){
+    var dk=b.getAttribute('data-dk'),mi=parseInt(b.getAttribute('data-mi'));
+    var diet=zsGet(KEYS.DIET,null);var m=mpDay(diet,dk);
+    if(m&&m.plan&&m.plan[mi]){m.plan[mi].items.push({name:'新食材',gram:100,p:0,c:0,f:0,kcal:0,note:''});zsSet(KEYS.DIET,diet);}
+    renderDiet();
+  };});
+  document.querySelectorAll('.mp-rec-btn').forEach(function(b){b.onclick=function(){
+    mpRecalc(b.getAttribute('data-dk'));renderDiet();
+  };});
+}
+function bindIngAuto(){
+  var nameEl=$('ing-name'),drop=$('ing-drop');if(!nameEl)return;
+  nameEl.addEventListener('input',function(){
+    var q=nameEl.value.trim();
+    if(!q){drop.style.display='none';drop.innerHTML='';updIngPreview();return;}
+    var ms=searchFood(q);
+    if(!ms.length){drop.style.display='none';return;}
+    drop.innerHTML=ms.map(function(f,i){return '<div class="fd-item" data-i="'+i+'"><span class="fd-n">'+esc(f.name)+'</span> <span class="fd-s">'+esc(f.cat)+' · 每100g：蛋白 '+f.p+'g · 碳水 '+f.c+'g · 脂肪 '+f.f+'g · '+f.kcal+'kcal</span></div>';}).join('');
+    drop.style.display='block';
+    drop.querySelectorAll('.fd-item').forEach(function(it){
+      it.onclick=function(){
+        var f=ms[parseInt(it.getAttribute('data-i'))];
+        nameEl.value=f.name;$('ing-cat').value=f.cat;$('ing-p').value=f.p;$('ing-c').value=f.c;$('ing-f').value=f.f;$('ing-kcal').value=f.kcal;
+        drop.style.display='none';updIngPreview();
+      };
+    });
+  });
+  ['ing-p','ing-c','ing-f','ing-kcal','ing-gram'].forEach(function(id){var el=$(id);if(el)el.addEventListener('input',updIngPreview);});
+}
+function updIngPreview(){
+  var el=$('ing-preview');if(!el)return;
+  var g=parseFloat($('ing-gram').value)||0,n=$('ing-name').value.trim();
+  if(!n||!g){el.innerHTML='输入名称自动匹配内置营养库（约 60 种常见食材）；填入食用量后自动换算实际营养值';return;}
+  var p=parseFloat($('ing-p').value)||0,c=parseFloat($('ing-c').value)||0,f=parseFloat($('ing-f').value)||0,k=parseFloat($('ing-kcal').value)||0;
+  el.innerHTML='<b style="color:var(--ink)">'+esc(n)+'</b> '+g+'g（'+(g===100?'每100g 基准':'按 '+g+'g 换算')+'）≈ 蛋白 <b style="color:var(--c-p)">'+(p*g/100).toFixed(1)+'g</b> · 碳水 <b style="color:var(--c-c)">'+(c*g/100).toFixed(1)+'g</b> · 脂肪 <b style="color:var(--c-f)">'+(f*g/100).toFixed(1)+'g</b> · <b>'+Math.round(k*g/100)+'kcal</b>';
+}
+
+/* ============ MODULE 3: TRAINING ============ */
+var exEdit=null;/* {di,ei} 当前正在编辑的动作 */
+/* 循环定位：按自定义起始日期计算今天是循环第几天（1~7），与自然周解绑 */
+function cyclePos(){
+  var cyc=zsGet(KEYS.CYCLE,null)||{start:todayStr()};
+  var s=new Date((cyc.start||todayStr())+'T00:00:00').getTime();
+  var t=new Date(todayStr()+'T00:00:00').getTime();
+  var diff=Math.floor((t-s)/86400000);
+  return ((diff%7)+7)%7+1;
+}
+function renderTraining(){
+  var train=zsGet(KEYS.TRAIN,null);
+  var html='<div class="sec-head"><h2>训练计划</h2><span class="cap">TRAINING</span></div>';
+  if(!train){$('m4').innerHTML=html+'<div class="empty-tip">请先在「制定计划」页生成方案。</div>';return;}
+  var cyc=zsGet(KEYS.CYCLE,null)||{start:todayStr()};
+  var todayPos=cyclePos();
+  html+='<div class="card"><div class="card-head"><b>7天训练循环</b><span>第一天~第七天 · 不绑定自然周 · 点击切换训练/休息</span></div><div class="train-grid" id="tg-grid">';
+  train.forEach(function(d){
+    var cls=d.isTraining?'':'rest';
+    var isToday=d.day===todayPos;
+    html+='<div class="train-cell '+cls+(isToday?' on':'')+'" data-day="'+d.day+'"><div class="tc-d">'+DAY_LABELS[d.day-1]+(isToday?' · 今天':'')+'</div><div class="tc-t">'+esc(d.title||d.bodyPart)+'</div><div class="tc-c">'+(d.isTraining?d.exercises.length+' 个动作':'休息')+'</div></div>';
+  });
+  html+='</div><div class="note">循环统一标注为「第一天~第七天」，与周一~周日解绑。每日标题完全开放自定义（训练部位 / 训练类型 / 直接写「休息日」均可）。切为休息日的动作会被保留（切回训练日自动恢复）；任何修改后系统自动弹出 4 维合理性评估。</div>';
+  html+='<div class="weight-form" style="padding-top:2px"><label class="field" style="max-width:200px">循环起始日期<input id="cyc-start" type="date" value="'+esc(cyc.start||todayStr())+'"></label><button class="ghost" id="cyc-save" style="margin-bottom:2px">保存循环设置</button><span style="font-size:12px;color:#8f8f8f;padding-bottom:8px">今天是循环第 '+todayPos+' 天，「今日任务」按此推送当天训练</span></div></div>';
+  train.forEach(function(d,idx){
+    html+='<div class="day-block"><div class="db-head"><b>'+DAY_LABELS[d.day-1]+'</b><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input id="db-title-'+idx+'" type="text" value="'+esc(d.title||d.bodyPart)+'" placeholder="自定义主题：如 胸+三头 / HIIT / 休息日" style="font-size:13px;padding:5px 8px;border:1px solid #d9d9d9;width:230px;font-family:var(--sans)"><button class="ghost sm" id="db-title-save-'+idx+'" style="padding:5px 10px">保存标题</button><span style="font-family:var(--mono);font-size:11px;color:#8f8f8f;letter-spacing:.1em">'+(d.isTraining?d.exercises.length+' 个动作':'休息日')+'</span></span></div>';
+    if(d.isTraining&&d.exercises.length){
+      html+='<ul>';
+      d.exercises.forEach(function(ex,ei){
+        if(exEdit&&exEdit.di===idx&&exEdit.ei===ei){
+          html+='<li style="display:block;padding:10px 20px;border-bottom:1px dashed var(--line);background:var(--soft)">';
+          html+='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">';
+          html+='<label class="field" style="flex:2;min-width:140px">动作名称<input id="ee-name" type="text" value="'+esc(ex.name)+'"></label>';
+          html+='<label class="field" style="min-width:64px">组数<input id="ee-sets" type="number" min="1" max="10" value="'+esc(ex.sets)+'"></label>';
+          html+='<label class="field" style="min-width:80px">次数<input id="ee-reps" type="text" value="'+esc(ex.reps)+'"></label>';
+          html+='<label class="field" style="min-width:80px">重量 kg<input id="ee-weight" type="text" value="'+esc(ex.weight||'')+'" placeholder="如 50"></label>';
+          html+='<label class="field" style="min-width:70px">组间休息<input id="ee-rest" type="text" value="'+esc(ex.rest)+'"></label>';
+          html+='<label class="field" style="min-width:56px">RPE<input id="ee-rpe" type="text" value="'+esc(ex.rpe)+'"></label>';
+          html+='<button class="solid sm" id="ee-save" style="margin-bottom:2px">保存</button><button class="ghost sm" id="ee-cancel" style="margin-bottom:2px">取消</button>';
+          html+='</div></li>';
+        }else{
+          html+='<li><span class="nm">'+esc(ex.name)+'</span><span class="dt">'+ex.sets+'×'+esc(ex.reps)+(ex.weight?' · '+esc(ex.weight)+'kg':'')+' · RPE '+esc(ex.rpe)+' · 休息 '+esc(ex.rest)+'</span><span class="ex-tools"><button class="ex-edit-btn" data-di="'+idx+'" data-ei="'+ei+'">编辑</button><button class="ex-del-btn" data-di="'+idx+'" data-ei="'+ei+'">删除</button></span></li>';
+        }
+      });
+      html+='</ul>';
+    }else if(d.isTraining){
+      html+='<ul><li style="color:#8f8f8f">暂无动作，点下方添加</li></ul>';
+    }else{
+      html+='<div style="padding:14px 20px;font-size:13px;color:#8f8f8f">休息日：可安排 20~40 分钟快走或完全休息。'+((d.exercises&&d.exercises.length)?'（原 '+d.exercises.length+' 个动作已保留，切回训练日自动恢复）':'')+'</div>';
+    }
+    if(d.isTraining){
+      html+='<div class="btn-row"><select id="ex-add-'+idx+'" style="padding:8px;font-size:13px;border:1px solid #d9d9d9;background:#fff">'+EX_LIB.map(function(e){return '<option value="'+e.id+'">'+e.name+'（'+e.part+'）</option>';}).join('')+'<option value="_custom">＋ 自定义动作…</option></select><input id="ex-cname-'+idx+'" type="text" placeholder="自定义动作名称" style="display:none;padding:8px;font-size:13px;border:1px solid #d9d9d9;flex:1;min-width:120px"><button class="ghost sm" data-idx="'+idx+'" id="ex-add-btn-'+idx+'">添加动作</button></div>';
+    }
+    html+='</div>';
+  });
+  html+='<div class="btn-row" style="padding-bottom:4px"><button class="solid sm" id="eval-btn">手动评估当前计划</button></div>';
+  var issues=rebalancePlan(train);
+  if(issues.length){html+='<div class="warn"><b>校准提醒</b><br>'+issues.map(function(x){return '· '+esc(x);}).join('<br>')+'</div>';}
+  html+='<div class="card"><div class="card-head"><b>训练原则</b></div><div class="rule-list"><div class="ri"><span class="no">01</span><span>以 7 天为一个完整训练循环，每个训练日先展示系统推荐内容，再由你手动编辑（增/删/改参数均可）。</span></div><div class="ri"><span class="no">02</span><span>第 1 周所有负重动作从常用重量的约 70% 起步校准，练完记录实际重量。</span></div><div class="ri"><span class="no">03</span><span>修改完成后系统自动从部位分配、训练容量、恢复节奏、目标匹配 4 个维度评估整周计划并给出优化建议。</span></div></div></div>';
+  $('m4').innerHTML=html;
+  /* 循环起始日期设置（与自然周解绑，自定义循环起点） */
+  var cycBtn=$('cyc-save');
+  if(cycBtn)cycBtn.onclick=function(){
+    var v=$('cyc-start').value||todayStr();
+    zsSet(KEYS.CYCLE,{start:v});
+    renderTraining();refreshAll();
+  };
+  /* 每日标题完全自定义：标题含「休」即标记为休息日（动作保留可回退） */
+  train.forEach(function(d,idx){
+    var tb=$('db-title-save-'+idx);if(!tb)return;
+    tb.onclick=function(){
+      var t=($('db-title-'+idx).value||'').trim()||'自定义';
+      var train2=zsGet(KEYS.TRAIN,[]);
+      var d2=train2[idx];if(!d2)return;
+      d2.title=t;
+      var isRest=/休|rest/i.test(t);
+      if(isRest){
+        if(d2.isTraining){d2._prevPart=d2.bodyPart;d2._prevTitle=d2.title;}
+        d2.isTraining=false;d2.bodyPart=t;
+      }else{
+        if(!d2.isTraining&&d2._prevTitle&&d2._prevTitle!=='休息')d2.title=t;
+        d2.isTraining=true;d2.bodyPart=t;
+      }
+      zsSet(KEYS.TRAIN,train2);exEdit=null;
+      renderTraining();autoEval();
+    };
+  });
+  /* 训练/休息切换：可自由切换任意一天，即时生效、可无限次回退 */
+  document.querySelectorAll('.train-cell').forEach(function(c){c.onclick=function(){
+    var day=parseInt(c.getAttribute('data-day'));
+    var train2=zsGet(KEYS.TRAIN,[]);
+    var d2=train2.find(function(x){return x.day===day;});
+    if(d2){
+      if(d2.isTraining){d2._prevPart=d2.bodyPart;d2._prevTitle=d2.title||d2.bodyPart;d2.isTraining=false;d2.bodyPart='休息';d2.title='休息';}
+      else{d2.isTraining=true;d2.title=(d2._prevTitle&&d2._prevTitle!=='休息')?d2._prevTitle:'自定义';d2.bodyPart=(d2._prevPart&&d2._prevPart!=='休息')?d2._prevPart:d2.title;}
+    }
+    zsSet(KEYS.TRAIN,train2);exEdit=null;
+    renderTraining();autoEval();
+  };});
+  /* 添加动作（含自定义） */
+  train.forEach(function(d,idx){
+    var btn=$('ex-add-btn-'+idx);if(!btn)return;
+    var sel=$('ex-add-'+idx),cn=$('ex-cname-'+idx);
+    if(sel)sel.onchange=function(){if(cn)cn.style.display=sel.value==='_custom'?'block':'none';};
+    btn.onclick=function(){
+      if(sel.value==='_custom'){
+        var n=cn.value.trim();
+        if(!n){alert('请输入自定义动作名称');return;}
+        d.exercises.push({id:'custom_'+Date.now(),name:n,part:d.bodyPart,sets:3,reps:'10-12',weight:'',rest:'90s',rpe:'7'});
+      }else{
+        var ex=EX_LIB.find(function(e){return e.id===sel.value;});
+        if(ex)d.exercises.push({id:ex.id,name:ex.name,part:ex.part,sets:ex.sets,reps:ex.reps,weight:'',rest:ex.rest,rpe:ex.rpe});
+      }
+      zsSet(KEYS.TRAIN,train);renderTraining();autoEval();
+    };
+  });
+  /* 动作编辑/删除 */
+  document.querySelectorAll('.ex-edit-btn').forEach(function(b){b.onclick=function(){exEdit={di:parseInt(b.getAttribute('data-di')),ei:parseInt(b.getAttribute('data-ei'))};renderTraining();};});
+  document.querySelectorAll('.ex-del-btn').forEach(function(b){b.onclick=function(){
+    var di=parseInt(b.getAttribute('data-di')),ei=parseInt(b.getAttribute('data-ei'));
+    var train2=zsGet(KEYS.TRAIN,[]);
+    if(train2[di]&&train2[di].exercises)train2[di].exercises.splice(ei,1);
+    zsSet(KEYS.TRAIN,train2);exEdit=null;renderTraining();autoEval();
+  };});
+  if(exEdit){
+    var sv=$('ee-save');
+    if(sv)sv.onclick=function(){
+      var train2=zsGet(KEYS.TRAIN,[]);
+      var ex2=train2[exEdit.di]&&train2[exEdit.di].exercises[exEdit.ei];
+      if(ex2){
+        ex2.name=$('ee-name').value.trim()||ex2.name;
+        ex2.sets=Math.max(1,Math.min(10,parseInt($('ee-sets').value)||ex2.sets));
+        ex2.reps=$('ee-reps').value.trim()||ex2.reps;
+        ex2.weight=$('ee-weight').value.trim();
+        ex2.rest=$('ee-rest').value.trim()||ex2.rest;
+        ex2.rpe=$('ee-rpe').value.trim()||ex2.rpe;
+      }
+      zsSet(KEYS.TRAIN,train2);exEdit=null;renderTraining();autoEval();
+    };
+    var cc=$('ee-cancel');if(cc)cc.onclick=function(){exEdit=null;renderTraining();};
+  }
+  var evb=$('eval-btn');if(evb)evb.onclick=function(){showEval(false);};
+}
+/* ---- 计划合理性评估（4 维） ---- */
+function autoEval(){setTimeout(function(){showEval(true);},120);}
+function showEval(auto){
+  var plan=zsGet(KEYS.TRAIN,[]);
+  var profile=zsGet(KEYS.PROFILE,DEF_PROFILE);
+  var dims=evaluatePlan(plan,profile);
+  var old=document.getElementById('eval-ov');if(old&&old.parentNode)old.parentNode.removeChild(old);
+  var ov=document.createElement('div');ov.className='modal-ov';ov.id='eval-ov';
+  var h='<div class="modal-box"><div class="mb-head"><b>训练计划合理性评估</b><button class="mb-close" data-cl="1">关闭</button></div>';
+  if(auto)h+='<div style="padding:10px 20px 0;font-size:12px;color:#8f8f8f">检测到计划变更，已自动触发评估</div>';
+  dims.forEach(function(d){
+    h+='<div class="ev-dim"><div class="ed-head"><b>'+esc(d.name)+'</b><span class="ev-score '+d.level+'">'+(d.level==='good'?'合理':d.level==='warn'?'注意':'需调整')+'</span></div><div class="ed-txt">'+d.text+'</div>'+(d.advice?'<div class="ed-adv"><b>建议：</b>'+esc(d.advice)+'</div>':'')+'</div>';
+  });
+  h+='<div class="mb-foot"><button class="ghost sm" data-cl="1">知道了</button></div></div>';
+  ov.innerHTML=h;document.body.appendChild(ov);
+  function cl(){if(ov.parentNode)ov.parentNode.removeChild(ov);}
+  ov.querySelectorAll('[data-cl]').forEach(function(b){b.onclick=cl;});
+  ov.onclick=function(e){if(e.target===ov)cl();};
+}
+function evaluatePlan(plan,profile){
+  var dims=[],goal=zsGet(KEYS.GOAL,DEF_GOAL);
+  var days=plan.filter(function(d){return d.isTraining;});
+  var n=days.length;
+  /* 维度1：部位分配均衡性 */
+  function grp(p){
+    p=p||'';
+    if(p.indexOf('胸')>=0)return '胸';if(p.indexOf('背')>=0)return '背';
+    if(p.indexOf('肩')>=0)return '肩';if(p.indexOf('腿')>=0||p.indexOf('臀')>=0)return '腿';
+    if(p.indexOf('三头')>=0||p.indexOf('二头')>=0||p.indexOf('臂')>=0)return '臂';
+    if(p.indexOf('核心')>=0)return '核心';if(p.indexOf('有氧')>=0)return '有氧';
+    return '其他';
+  }
+  var counts={};
+  days.forEach(function(d){d.exercises.forEach(function(ex){var g=grp(ex.part);counts[g]=(counts[g]||0)+1;});});
+  var covered=Object.keys(counts).filter(function(g){return counts[g]>0;});
+  var missing=[];['胸','背','腿','肩'].forEach(function(g){if(!counts[g])missing.push(g);});
+  var d1={name:'部位分配均衡性',level:'good',text:'每周直接覆盖 '+covered.length+' 个部位群：'+(covered.length?covered.map(function(g){return g+'×'+counts[g];}).join(' · '):'无')+'。',advice:''};
+  if(missing.length&&n>=3&&goal.type==='fat_loss'){d1.level=missing.length>=3?'bad':'warn';d1.advice='缺少 '+missing.join('/')+' 的直接训练。减脂期大肌群训练的热量效率最高，建议至少保证胸/背/腿每周各 1 次。';}
+  else if((counts['臂']||0)>((counts['胸']||0)+(counts['背']||0))){d1.level='warn';d1.advice='小臂肌群训练量超过大肌群，建议把容量优先给胸/背/腿。';}
+  else d1.advice=n>=4?'部位覆盖完整，大肌群均有直接训练。':'低频训练下优先保证胸/背/腿三大肌群。';
+  dims.push(d1);
+  /* 维度2：训练容量合理性 */
+  var totalSets=0,perDay=[];
+  days.forEach(function(d){var s=0;d.exercises.forEach(function(ex){s+=parseInt(ex.sets)||0;});perDay.push(DAY_LABELS[d.day-1]+s+'组');totalSets+=s;});
+  var avg=n?Math.round(totalSets/n):0;
+  var d2={name:'训练容量合理性',level:'good',text:n?('每周总容量 '+totalSets+' 组 · '+n+' 个训练日 · 日均 '+avg+' 组（'+perDay.join('/')+'）。'):'当前没有训练日。',advice:''};
+  if(n===0){d2.level='bad';d2.advice='全周无训练日，减脂期的消耗与保肌都依赖训练，建议至少安排 3 天。';}
+  else if(avg>25){d2.level='warn';d2.advice='日均组数超过 25 组，单次时长过长会推升皮质醇、影响恢复，建议每个训练日 12~22 组。';}
+  else if(avg<8){d2.level='warn';d2.advice='日均组数不足 8 组，刺激量偏小，建议每个动作 3 组、每日 3~5 个动作。';}
+  else d2.advice='日均容量处于 12~22 组的高效区间，匹配减脂目标。';
+  dims.push(d2);
+  /* 维度3：恢复节奏科学性 */
+  var d3={name:'恢复节奏科学性',level:'good',text:'',advice:''};
+  var streak=0,maxStreak=0,sameAdj=[];
+  var ordered=plan.slice().sort(function(a,b){return a.day-b.day;});
+  for(var i=0;i<ordered.length;i++){
+    if(ordered[i].isTraining){
+      streak++;if(streak>maxStreak)maxStreak=streak;
+      if(i>0&&ordered[i-1].isTraining){
+        var pp=ordered[i-1].bodyPart||'',cp=ordered[i].bodyPart||'';
+        if(pp&&cp&&pp!=='自定义'&&cp!=='自定义'&&pp===cp)sameAdj.push(DAY_LABELS[ordered[i].day-1]+'与'+DAY_LABELS[ordered[i-1].day-1]+'连续练同一部位（'+cp+'）');
+      }
+    }else streak=0;
+  }
+  d3.text='每周 '+n+' 练 '+(7-n)+' 休 · 最长连续训练 '+maxStreak+' 天'+(sameAdj.length?' · '+sameAdj.join('；'):'')+'。';
+  if(n>=7){d3.level='bad';d3.advice='全周无完全休息日，建议至少保留 1 天完全休息。';}
+  else if(maxStreak>3){d3.level='warn';d3.advice='连续训练超过 3 天，睡眠与蛋白质必须跟上；如恢复不足，在中间插入休息日。';}
+  else if(sameAdj.length){d3.level='warn';d3.advice='同一部位连续两天训练，恢复窗口叠加不足，建议间隔至少 48 小时。';}
+  else d3.advice='练休交替合理，恢复窗口充足。';
+  dims.push(d3);
+  /* 维度4：目标匹配度 */
+  var d4={name:'目标匹配度',level:'good',text:'',advice:''};
+  var hasCardio=(counts['有氧']||0)>0;
+  d4.text='目标：'+(goal.type==='fat_loss'?'减脂':goal.type==='muscle'?'增肌':'塑形')+' · 计划 '+n+' 个训练日（档案设置 '+profile.weeklyDays+'）· 有氧'+(hasCardio?'已安排':'未安排')+'。';
+  if(goal.type==='fat_loss'){
+    if(n<3){d4.level='warn';d4.advice='减脂期建议每周 ≥3 个训练日维持肌肉量与热量消耗。';}
+    else if(!hasCardio){d4.level='warn';d4.advice='计划中没有直接有氧动作。你的主要做功形式是日常步数——建议保持每日 8000 步以上，或训练后加 20~30 分钟快走。';}
+    else d4.advice='力量+有氧组合匹配减脂目标，容量与节奏合理。';
+  }else if(goal.type==='muscle'){
+    if(n<3){d4.level='warn';d4.advice='增肌需要每周 ≥3 次力量训练积累刺激。';}
+    else d4.advice='频率支持增肌积累，保持渐进超负荷。';
+  }else d4.advice='塑形需要力量训练+可控有氧，当前结构可行。';
+  if(n!==parseInt(profile.weeklyDays)){
+    if(d4.level==='good')d4.level='warn';
+    d4.advice+=' 计划训练日（'+n+'天）与档案设置（'+profile.weeklyDays+'天）不一致，建议对齐，或在「制定计划」页更新每周训练次数。';
+  }
+  dims.push(d4);
+  return dims;
+}
+
+/* ============ MODULE 4: TREND ============ */
+function renderTrend(){
+  var wt=zsGet(KEYS.WEIGHT,[]);var steps=zsGet(KEYS.STEPS,[]);var checkin=zsGet(KEYS.CHECK,{});
+  var train=zsGet(KEYS.TRAIN,[]);
+  var tDays=train.filter(function(d){return d.isTraining;}).length;
+  var cDays=Object.keys(checkin).length;
+  var html='<div class="sec-head"><h2>数据趋势与周度复盘</h2><span class="cap">TREND &amp; REVIEW</span></div>';
+  html+='<div class="card"><div class="card-head"><b>四项追踪指标</b></div><div class="kv">';
+  html+=cell2('体重记录',wt.length+' 条');
+  html+=cell2('步数记录',steps.length+' 条');
+  html+=cell2('训练打卡',cDays+' 天');
+  html+=cell2('计划训练日',tDays+' 天/周');
+  if(wt.length>=7){var avg7=wt.slice(-7).reduce(function(s,x){return s+x.kg;},0)/Math.min(7,wt.length);html+=cell2('近7天均重',avg7.toFixed(1)+' kg');}
+  if(steps.length>=7){var avgS=steps.slice(-7).reduce(function(s,x){return s+x.steps;},0)/Math.min(7,steps.length);html+=cell2('近7天步数',Math.round(avgS)+' 步');}
+  html+='</div></div>';
+  /* 周期倒计时（按截止日期倒推，与制定计划联动） */
+  var goal2=zsGet(KEYS.GOAL,DEF_GOAL),diet2=zsGet(KEYS.DIET,null);
+  if(goal2&&goal2.deadline&&diet2&&diet2.weeksTotal){
+    var dDays=Math.ceil((new Date(goal2.deadline+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/86400000);
+    if(dDays>=0){
+      var totalD=diet2.weeksTotal*7,elapsed=Math.max(totalD-dDays,0),progp=Math.min(elapsed/totalD,1);
+      var sw=diet2.startWeight||0;
+      if(sw){
+        var expNow=Math.round((sw+(goal2.targetWeight-sw)*progp)*10)/10;
+        var latest=wt.length?wt[wt.length-1].kg:null;
+        var diff=latest!=null?Math.round((latest-expNow)*10)/10:null;
+        html+='<div class="card"><div class="card-head"><b>周期倒计时</b><span>截止 '+esc(goal2.deadline)+' · 共 '+diet2.weeksTotal+' 周</span></div><div class="kv">';
+        html+=cell2('距截止日期',dDays+' 天');
+        html+=cell2('周期进度','第 '+Math.min(Math.ceil(elapsed/7),diet2.weeksTotal)+' / '+diet2.weeksTotal+' 周');
+        html+=cell2('当前应达体重',expNow+' kg');
+        html+=cell2('实际 vs 应达',diff==null?'称重后对比':((diff>0?'+':'')+diff+' kg'+(diff>0?'（偏慢）':diff<0?'（领先）':'（吻合）')));
+        html+='</div><div style="padding:12px 22px 6px"><div class="progress-track"><div class="progress-fill" style="width:'+Math.round(progp*100)+'%"></div></div><div style="font-size:11px;color:#8f8f8f;margin-top:6px;font-family:var(--mono)">'+Math.round(progp*100)+'% · 按起始 '+sw+'kg → 目标 '+goal2.targetWeight+'kg 线性推算；在「制定计划」页调整截止日期后此处自动同步</div></div></div>';
+      }
+    }
+  }
+  html+='<div class="card"><div class="card-head"><b>体重打卡</b><span>'+(wt.length?wt[wt.length-1].kg+' kg · 最新':'暂无记录')+'</span></div>';
+  html+='<div class="weight-form"><label class="field">日期<input id="wt-date" type="date" value="'+todayStr()+'"></label><label class="field">体重 kg<input id="wt-kg" type="number" step="0.1" min="35" max="200" placeholder="如 104.5"></label><button class="solid" id="wt-add">记录</button></div>';
+  html+='<div class="chart-box" id="wt-chart"></div><div class="wk-diff" id="wk-diff" style="border-top:none;padding-top:0"></div><div id="wt-list"></div>';
+  html+='<div class="note">建议每周同一时间称重。折线图上每个点为当日体重，橙色标记为每周平均体重点位；每满 7 天自动对比本周与上周平均体重。</div></div>';
+  html+='<div class="card"><div class="card-head"><b>步数录入</b><span>'+(steps.length?steps[steps.length-1].steps+' 步 · 最新':'暂无记录')+'</span></div>';
+  html+='<div class="weight-form"><label class="field">日期<input id="st-date" type="date" value="'+todayStr()+'"></label><label class="field">步数<input id="st-val" type="number" min="0" placeholder="如 8000"></label><button class="solid" id="st-add">记录</button></div>';
+  html+='<div id="st-list"></div>';
+  html+='<div class="note">每日步数手动录入，每满7天自动统计日均步数。</div></div>';
+  /* 周度复盘录入区（原训练复盘模块合并至此） */
+  html+='<div id="rv-zone"></div>';
+  $('m5').innerHTML=html;
+  renderWtChart(wt);renderWeeklyDiff(wt);renderWtList(wt);renderStList(steps);renderReview();
+  $('wt-add').onclick=function(){var d=$('wt-date').value,k=parseFloat($('wt-kg').value);if(!d){alert('请选择日期');return;}if(!isFinite(k)||k<30||k>250){alert('请输入有效体重');return;}k=Math.round(k*10)/10;var w2=zsGet(KEYS.WEIGHT,[]);for(var i=0;i<w2.length;i++){if(w2[i].date===d){w2[i].kg=k;zsSet(KEYS.WEIGHT,w2);renderTrend();setTimeout(checkWeekly,120);return;}}w2.push({date:d,kg:k});w2.sort(function(a,b){return a.date<b.date?-1:1;});zsSet(KEYS.WEIGHT,w2);renderTrend();setTimeout(checkWeekly,120);};
+  $('st-add').onclick=function(){var d=$('st-date').value,s=parseInt($('st-val').value);if(!d){alert('请选择日期');return;}if(!isFinite(s)||s<0){alert('请输入有效步数');return;}var s2=zsGet(KEYS.STEPS,[]);for(var i=0;i<s2.length;i++){if(s2[i].date===d){s2[i].steps=s;zsSet(KEYS.STEPS,s2);renderTrend();return;}}s2.push({date:d,steps:s});s2.sort(function(a,b){return a.date<b.date?-1:1;});zsSet(KEYS.STEPS,s2);renderTrend();};
+}
+function cell2(k,v){return '<div class="cell"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>';}
+function renderWtChart(wt){
+  var box=$('wt-chart');if(!box)return;
+  if(wt.length<2){box.innerHTML='<div class="empty-tip">记录2次以上体重后，这里会出现趋势曲线。</div>';return;}
+  var W=640,H=220,P=34;
+  var kgs=wt.map(function(x){return x.kg;}),mn=Math.min.apply(null,kgs),mx=Math.max.apply(null,kgs);
+  if(mx-mn<1){mn-=0.5;mx+=0.5;}
+  function X(i){return P+(W-2*P)*i/(wt.length-1);}
+  function Y(k){return H-P-(H-2*P)*(k-mn)/(mx-mn);}
+  var pts=wt.map(function(x,i){return X(i).toFixed(1)+','+Y(x.kg).toFixed(1);}).join(' ');
+  var dots=wt.map(function(x,i){return '<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(x.kg).toFixed(1)+'" r="3.4" fill="#111"><title>'+x.date+' · '+x.kg+'kg</title></circle>';}).join('');
+  /* V3: 每周平均体重点位（橙色标记 + 数值标注） */
+  var wkMarks='';
+  for(var wi=0;wi*7<wt.length;wi++){
+    var seg=wt.slice(wi*7,wi*7+7);
+    if(seg.length<3)continue;
+    var avg=seg.reduce(function(s,x){return s+x.kg;},0)/seg.length;
+    var mid=wi*7+Math.floor((seg.length-1)/2);
+    var ax=X(mid).toFixed(1),ay=Y(avg).toFixed(1);
+    wkMarks+='<line x1="'+ax+'" y1="'+ay+'" x2="'+ax+'" y2="'+(H-P)+'" stroke="#d97a00" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/>';
+    wkMarks+='<circle cx="'+ax+'" cy="'+ay+'" r="4.5" fill="#d97a00" stroke="#fff" stroke-width="1.5"><title>第 '+(wi+1)+' 周平均 '+avg.toFixed(1)+'kg</title></circle>';
+    wkMarks+='<text x="'+ax+'" y="'+(ay-9)+'" font-size="9.5" fill="#d97a00" text-anchor="middle" font-family="monospace">W'+(wi+1)+' '+avg.toFixed(1)+'</text>';
+  }
+  var grid='';
+  for(var gi=0;gi<=3;gi++){var gy=P+(H-2*P)*gi/3;var gk=(mx-(mx-mn)*gi/3).toFixed(1);grid+='<line x1="'+P+'" y1="'+gy+'" x2="'+(W-P)+'" y2="'+gy+'" stroke="#eee" stroke-width="1"/><text x="'+(P-6)+'" y="'+(gy+4)+'" font-size="10" fill="#8f8f8f" text-anchor="end" font-family="monospace">'+gk+'</text>';}
+  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:480px;height:auto">'+grid+'<polyline points="'+pts+'" fill="none" stroke="#111" stroke-width="2"/>'+dots+wkMarks+'<text x="'+P+'" y="'+(H-8)+'" font-size="10" fill="#8f8f8f" font-family="monospace">'+wt[0].date+'</text><text x="'+(W-P)+'" y="'+(H-8)+'" font-size="10" fill="#8f8f8f" text-anchor="end" font-family="monospace">'+wt[wt.length-1].date+'</text><text x="'+(W-P)+'" y="'+(P-14)+'" font-size="10" fill="#8f8f8f" text-anchor="end" font-family="monospace">● 每日体重　● Wn=周平均</text></svg>';
+}
+/* V3: 本周平均体重 vs 上周（下降/上升/持平 + 公斤数） */
+function renderWeeklyDiff(wt){
+  var el=$('wk-diff');if(!el)return;
+  if(wt.length<7){el.innerHTML='';return;}
+  function avg(arr){return arr.reduce(function(s,x){return s+x.kg;},0)/arr.length;}
+  var last7=wt.slice(-7),prev7=wt.slice(-14,-7);
+  var a=Math.round(avg(last7)*10)/10;
+  if(!prev7.length){el.innerHTML='本周（近 7 天）平均体重 <b>'+a+' kg</b>。再积累一周数据后，将自动对比上周平均体重。';return;}
+  var b=Math.round(avg(prev7)*10)/10;
+  var d=Math.round((a-b)*10)/10;
+  var st,cls;
+  if(d<-0.05){st='下降 <b style="color:#a00">'+Math.abs(d)+' kg</b>';cls='↓';}
+  else if(d>0.05){st='上升 <b style="color:#a00">+'+d+' kg</b>';cls='↑';}
+  else{st='持平（'+(d>0?'+':'')+d+' kg）';cls='→';}
+  el.innerHTML='本周平均体重 <b>'+a+' kg</b> '+cls+'，较上周平均（<b>'+b+' kg</b>）<b>'+st+'</b>。每周平均点已在上方折线图中以橙色标记。';
+}
+function renderWtList(wt){
+  var el=$('wt-list');if(!el)return;if(!wt.length){el.innerHTML='';return;}
+  var rows='';wt.slice().reverse().forEach(function(x,i){rows+='<tr><td>'+esc(x.date)+'</td><td>'+esc(x.kg)+' kg</td><td><button class="del" data-i="'+(wt.length-1-i)+'">删除</button></td></tr>';});
+  el.innerHTML='<table class="wt-table"><tr><th>日期</th><th>体重</th><th></th></tr>'+rows+'</table>';
+  el.querySelectorAll('.del').forEach(function(btn){btn.onclick=function(){var w2=zsGet(KEYS.WEIGHT,[]);w2.splice(parseInt(btn.getAttribute('data-i')),1);zsSet(KEYS.WEIGHT,w2);renderTrend();};});
+}
+function renderStList(steps){
+  var el=$('st-list');if(!el)return;if(!steps.length){el.innerHTML='';return;}
+  var rows='';steps.slice().reverse().forEach(function(x){rows+='<tr><td>'+esc(x.date)+'</td><td>'+esc(x.steps)+' 步</td></tr>';});
+  el.innerHTML='<table class="wt-table"><tr><th>日期</th><th>步数</th></tr>'+rows+'</table>';
+}
+
+/* ============ 周度复盘（原训练复盘模块合并入「数据趋势与周度复盘」） ============ */
+var rvState={step:0,data:{}};
+var rvFiles=[];/* 复盘待上传图片（跨函数共享） */
+function renderReview(){
+  var zone=$('rv-zone');if(!zone)return;
+  var reviews=zsGet(KEYS.REVIEWS,[]);var weekly=zsGet(KEYS.WEEKLY,[]);
+  var html='<div class="card"><div class="card-head"><b>周度复盘录入 · 图片上传</b><span>身体状态/训练记录</span></div>';
+  html+='<div style="padding:16px 22px"><input type="file" id="rv-img" accept="image/*" multiple style="font-size:13px"><div id="rv-img-preview" style="margin-top:10px"></div></div>';
+  html+='<div class="note">图片保存在本机浏览器，用于记录身体状态变化。超过 500KB 的图片建议压缩。</div></div>';
+  html+='<div class="card"><div class="card-head"><b>周度复盘录入 · 对话式复盘</b><span>描述一次完整训练</span></div>';
+  html+='<div class="chat-box" id="chat-box"><div class="chat-msg sys"><b>点击下方按钮开始复盘</b></div></div>';
+  html+='<div class="chat-input" id="chat-input"><button class="solid sm" id="rv-start">开始复盘</button></div></div>';
+  html+='<div class="card"><div class="card-head"><b>复盘记录</b><span>'+reviews.length+' 条（含今日任务反馈）</span></div>';
+  if(reviews.length){
+    reviews.slice().reverse().forEach(function(r){
+      html+='<div class="rv-card"><div class="rc-head"><b>'+esc(r.date)+'</b><span>'+esc(r.day||'')+(r.type==='daily'?' · 当日反馈':' · 单次复盘')+(r.completion!=null?' · 完成度 '+esc(r.completion==null?'-':r.completion)+'%':'')+'</span></div>';
+      html+='<div class="rc-body">'+esc(r.summary||'')+'<br><span style="color:#8f8f8f;font-size:12px">'+(r.type==='daily'?'明日：':'下次：')+esc(r.nextAction||'按计划执行')+'</span>';
+      if(r.images&&r.images.length)r.images.forEach(function(src){html+='<img class="rv-img" src="'+esc(src)+'">';});
+      html+='</div></div>';
+    });
+  }else{html+='<div class="empty-tip">暂无复盘记录。可在「今日任务」提交训练反馈，或用上方对话式复盘录入。</div>';}
+  html+='</div>';
+  html+='<div class="card"><div class="card-head"><b>周复盘报告</b><span>'+weekly.length+' 份 · 每完成一个 7 天循环自动生成</span></div>';
+  if(weekly.length){
+    weekly.slice().reverse().forEach(function(w,ri){
+      var idx=weekly.length-1-ri;
+      html+='<div class="rv-card"><div class="rc-head"><b>'+esc(w.startDate)+' ~ '+esc(w.endDate)+'</b><span>'+esc(w.title||'')+'</span></div>';
+      html+='<div class="rc-body">'+esc(w.summary||'')+'<br><span style="color:#8f8f8f;font-size:12px">周均体重：'+esc(w.avgWeight||'-')+'kg · 饮食执行：'+esc(w.dietEval||'-')+'</span><br><span style="color:#8f8f8f;font-size:12px">建议：'+esc(w.suggestions||'按计划执行')+'</span>';
+      if(w.pendingAdj&&!w.adjApplied){
+        html+='<div class="cf-box" style="margin-top:10px;border:1px solid var(--line);background:var(--soft)">系统评估建议调整方案：'+esc(w.pendingAdj.reason)+'<div class="cf-row"><button class="solid sm wk-adj-yes" data-i="'+idx+'">应用调整（先确认后执行）</button><button class="ghost sm wk-adj-no" data-i="'+idx+'">忽略</button></div></div>';
+      }else if(w.adjApplied){
+        html+='<div style="margin-top:8px;font-size:12px;color:#8f8f8f">✓ 周复盘建议的方案调整已应用并同步全平台。</div>';
+      }
+      html+='</div></div>';
+    });
+  }else{html+='<div class="empty-tip">完成一个 7 天循环（累计 7 条体重/打卡记录）后自动生成整周综合复盘：训练完成率、体重变化总结、饮食执行评估与优化建议。</div>';}
+  html+='</div>';
+  zone.innerHTML=html;
+  $('rv-start').onclick=startReviewChat;
+  zone.querySelectorAll('.wk-adj-yes').forEach(function(b){b.onclick=function(){applyWeeklyAdj(parseInt(b.getAttribute('data-i')));};});
+  zone.querySelectorAll('.wk-adj-no').forEach(function(b){b.onclick=function(){var weekly=zsGet(KEYS.WEEKLY,[]);var i=parseInt(b.getAttribute('data-i'));if(weekly[i]){weekly[i].adjApplied='ignored';zsSet(KEYS.WEEKLY,weekly);}renderTrend();};});
+  $('rv-img').addEventListener('change',function(){
+    var files=this.files;if(!files||!files.length)return;
+    var preview=$('rv-img-preview');preview.innerHTML='';rvFiles=[];var over=false;
+    Array.prototype.forEach.call(files,function(f){
+      if(f.size>5000000){over=true;return;}
+      rvFiles.push(f);
+      var img=document.createElement('img');img.src=URL.createObjectURL(f);img.className='rv-img';preview.appendChild(img);
+    });
+    if(over)preview.innerHTML+='<div style="color:#a00;font-size:12px">有图片超过 5MB 已跳过</div>';
+  });
+}
+function startReviewChat(){
+  rvState={step:0,data:{date:todayStr()}};
+  $('chat-box').innerHTML='<div class="chat-msg sys"><b>复盘开始</b></div>';
+  askReviewQ();
+}
+function askReviewQ(){
+  var ci=$('chat-input');if(!ci)return;var s=rvState.step;
+  var train=zsGet(KEYS.TRAIN,[]);
+  if(s===0){
+    ci.innerHTML='<label class="field" style="flex:1;min-width:200px">选择训练日<select id="rv-day"><option value="">--选择--</option>'+train.filter(function(d){return d.isTraining;}).map(function(d){return '<option value="'+d.day+'">'+DAY_LABELS[d.day-1]+' · '+esc(d.title||d.bodyPart)+'</option>';}).join('')+'</select></label><button class="solid sm" id="rv-next">下一步</button>';
+    $('rv-next').onclick=function(){var v=$('rv-day').value;if(!v)return;rvState.data.dayIdx=parseInt(v);rvState.data.day=DAY_LABELS[parseInt(v)-1];addChat('usr','选择了 '+rvState.data.day);rvState.step=1;askReviewQ();};
+  }else if(s===1){
+    var d=train[rvState.data.dayIdx-1];
+    if(!d||!d.exercises.length){rvState.data.exercises=[];rvState.step=3;askReviewQ();return;}
+    ci.innerHTML='<div style="flex:1"><b style="font-size:13px">完成了哪些动作？</b><div id="rv-ex-list">'+d.exercises.map(function(ex,i){return '<label style="display:block;padding:4px 0;font-size:13px"><input type="checkbox" value="'+i+'"> '+esc(ex.name)+'</label>';}).join('')+'</div></div><button class="solid sm" id="rv-next">下一步</button>';
+    $('rv-next').onclick=function(){var sel=[];document.querySelectorAll('#rv-ex-list input:checked').forEach(function(c){sel.push(parseInt(c.value));});rvState.data.exercises=sel.map(function(i){return{name:d.exercises[i].name,sets:d.exercises[i].sets,reps:d.exercises[i].reps};});addChat('usr','完成了 '+sel.length+'/'+d.exercises.length+' 个动作');rvState.step=2;rvState.data.exSubIdx=0;askReviewQ();};
+  }else if(s===2){
+    var exs=rvState.data.exercises,si=rvState.data.exSubIdx;
+    if(si>=exs.length){rvState.step=3;askReviewQ();return;}
+    ci.innerHTML='<label class="field" style="flex:1;min-width:200px">'+esc(exs[si].name)+' 重量 kg<input id="rv-w" type="number" step="0.5" placeholder="如 50"></label><label class="field" style="min-width:100px">组数×次数<input id="rv-sr" type="text" placeholder="如 3x12"></label><button class="solid sm" id="rv-next">记录</button>';
+    $('rv-next').onclick=function(){exs[si].weight=$('rv-w').value||'';exs[si].setsReps=$('rv-sr').value||'';addChat('usr',exs[si].name+': '+(exs[si].weight||'?')+'kg x '+(exs[si].setsReps||'?'));rvState.data.exSubIdx++;askReviewQ();};
+  }else if(s===3){
+    ci.innerHTML='<label class="field" style="flex:1;min-width:200px">训练强度 RPE<select id="rv-rpe"><option value="6">RPE 6（还能做4次以上）</option><option value="7">RPE 7（还能做3次）</option><option value="8">RPE 8（还能做2次）</option></select></label><button class="solid sm" id="rv-next">下一步</button>';
+    $('rv-next').onclick=function(){rvState.data.rpe=$('rv-rpe').value;addChat('usr','RPE '+rvState.data.rpe);rvState.step=4;askReviewQ();};
+  }else if(s===4){
+    ci.innerHTML='<label class="field" style="flex:1;min-width:200px">身体感受 / 不适<textarea id="rv-feel" placeholder="如：腰部无不适，肩部正常"></textarea></label><button class="solid sm" id="rv-next">生成复盘</button>';
+    $('rv-next').onclick=function(){rvState.data.feeling=$('rv-feel').value;genReview();};
+  }
+}
+function addChat(type,text){var cb=$('chat-box');var d=document.createElement('div');d.className='chat-msg '+type;d.textContent=text;cb.appendChild(d);cb.scrollTop=cb.scrollHeight;}
+function genReview(){
+  var d=rvState.data,train=zsGet(KEYS.TRAIN,[]);
+  var day=train[d.dayIdx-1];var planned=day?day.exercises.length:0;var done=d.exercises?d.exercises.length:0;
+  var completion=planned?Math.round(done/planned*100):0;
+  var verdict,nextAction;
+  if(completion>=100&&parseInt(d.rpe)<=7){verdict='完成度优秀，强度适中，可按计划继续';nextAction='下次可尝试加重 5~10% 或加 1 次';}
+  else if(completion>=100&&parseInt(d.rpe)===8){verdict='完成度优秀，强度到位，注意恢复';nextAction='保证休息与蛋白质摄入，下次保持当前强度';}
+  else if(completion<100){verdict='未完成全部动作，下次优先补完';nextAction='下次优先完成遗漏的动作';}
+  else{verdict='训练完成，继续按计划执行';nextAction='按计划执行下次训练';}
+  if(d.feeling&&(d.feeling.indexOf('疼')>=0||d.feeling.indexOf('不适')>=0)){verdict+='；注意关注不适信号';nextAction='下次训练前确认无痛，必要时调整动作';}
+  var summary='['+d.day+'] 完成度 '+completion+'%('+done+'/'+planned+') · RPE '+(d.rpe||'-');
+  if(d.exercises&&d.exercises.length)summary+=' · 动作：'+d.exercises.map(function(e){return e.name+':'+(e.weight||'?')+'kg';}).join('、');
+  if(d.feeling)summary+=' · 感受：'+d.feeling;
+  var finish=function(urls){
+    var review={date:d.date,day:d.day,exercises:d.exercises,completion:completion,rpe:d.rpe,feeling:d.feeling,summary:summary,verdict:verdict,nextAction:nextAction,images:urls,createdAt:Date.now()};
+    var reviews=zsGet(KEYS.REVIEWS,[]);reviews.push(review);zsSet(KEYS.REVIEWS,reviews);
+    var cb2=zsGet(KEYS.CHECK,{});cb2[d.date]=cb2[d.date]||{};if(d.exercises)d.exercises.forEach(function(e){cb2[d.date][e.name]=true;});zsSet(KEYS.CHECK,cb2);
+    addChat('sys','复盘已生成：'+verdict+'；下次：'+nextAction);
+    $('chat-input').innerHTML='<button class="solid sm" id="rv-start">再复盘一次</button>';
+    $('rv-start').onclick=startReviewChat;
+    setTimeout(function(){renderReview();checkWeekly();},100);
+  };
+  if(!rvFiles.length){finish([]);return;}
+  Promise.all(rvFiles.map(uploadImage)).then(finish).catch(function(){finish([]);});
+}
+function checkWeekly(){
+  var wt=zsGet(KEYS.WEIGHT,[]);if(wt.length<7)return;
+  var weekly=zsGet(KEYS.WEEKLY,[]);
+  var lastEnd=weekly.length?weekly[weekly.length-1].endDate:null;
+  var after=lastEnd?wt.filter(function(x){return x.date>lastEnd;}):wt.slice();
+  if(after.length<7)return;
+  genWeekly(after);
+}
+function genWeekly(wtData){
+  var train=zsGet(KEYS.TRAIN,[]);
+  var tDays=train.filter(function(d){return d.isTraining;}).length;
+  var checkin=zsGet(KEYS.CHECK,{});
+  var diet=zsGet(KEYS.DIET,null);
+  var sd=wtData[0].date,ed=wtData[wtData.length-1].date;
+  var cDays=0;Object.keys(checkin).forEach(function(date){if(date>=sd&&date<=ed)cDays++;});
+  var fw=wtData[0].kg,lw=wtData[wtData.length-1].kg;
+  var wc=Math.round((lw-fw)*10)/10;
+  var aw=Math.round(wtData.reduce(function(s,x){return s+x.kg;},0)/wtData.length*10)/10;
+  var comp=tDays?Math.round(cDays/tDays*100):0;
+  var title,sug=[],sum='';
+  if(comp<70){title='完成率偏低';sug.push('训练完成率 '+comp+'%，建议适当降低训练量或调整安排');}
+  else{title='完成率良好';}
+  sum+='本周训练 '+cDays+'/'+tDays+' 天，完成率 '+comp+'%。体重 '+fw+'->'+lw+'kg('+(wc>0?'+'+wc:wc)+'kg)，周均 '+aw+'kg。';
+  /* 饮食执行评估：按体重变化 vs 计划节奏判断 */
+  var pace=diet?(diet.paceCut||0):0;
+  var dietEval='体重变化与计划节奏基本一致，饮食执行良好。';
+  if(wc<-1.5){sug.push('体重下降偏快('+wc+'kg/周)，注意热量不要低于安全下限');sum+='减重速度偏快。';dietEval='减重快于计划节奏（计划约 '+pace+'kg/周），饮食执行可能偏严。';}
+  else if(wc>-0.3&&wc<=0){sug.push('体重变化小('+wc+'kg)，可适度收紧饮食或增加步数');sum+='减重速度偏慢。';dietEval='体重近乎持平，建议检查饮食记录与称重条件（同时间、同着装）。';}
+  else if(wc>0){sug.push('体重上升 '+wc+'kg，建议检查饮食依从性');sum+='体重上升。';dietEval='体重上升，饮食依从性可能不足，回看当日实际摄入。';}
+  else{sum+='减重速度正常。';}
+  /* 优化方向建议 */
+  sug.push('优化方向：保持蛋白质吃满目标、每日 8000 步以上；连续两周完成率 ≥90% 可考虑小幅加重');
+  var report={startDate:sd,endDate:ed,title:title,summary:sum,completion:comp,weightChange:wc,avgWeight:aw,checkinDays:cDays,trainingDays:tDays,dietEval:dietEval,suggestions:sug.join('；'),createdAt:Date.now()};
+  /* V3：调整建议先确认后执行，不再自动修改方案 */
+  if(wc<-1.5){report.pendingAdj={calT:100,calR:100,reason:'体重下降偏快（'+wc+'kg/周），建议训练/休息日各 +100kcal'};}
+  else if(wc>-0.3&&wc<=0){report.pendingAdj={calT:-100,calR:-100,reason:'体重变化偏小（'+wc+'kg/周），建议训练/休息日各 −100kcal（或增加步数代替）'};}
+  var w=zsGet(KEYS.WEEKLY,[]);w.push(report);zsSet(KEYS.WEEKLY,w);
+}
+/* 应用周复盘建议的方案调整（用户确认后执行，全平台同步） */
+function applyWeeklyAdj(idx){
+  var weekly=zsGet(KEYS.WEEKLY,[]);
+  var w=weekly[idx];
+  if(!w||!w.pendingAdj)return;
+  confirmApply(null,'周复盘方案调整：'+w.pendingAdj.reason,'调整将同步更新饮食计划、今日任务与数据趋势等全平台关联数据。',function(){
+    var diet=zsGet(KEYS.DIET,null);
+    var val=w.pendingAdj.calT;
+    if(diet){
+      diet.calT+=val;diet.calR+=(w.pendingAdj.calR||val);
+      diet.cT=Math.max(50,Math.round((diet.calT-4*diet.pT-9*diet.fT)/4));
+      diet.cR=Math.max(40,Math.round((diet.calR-4*diet.pR-9*diet.fR)/4));
+      var ings=zsGet(KEYS.ING,DEF_ING);
+      diet.mealsT=genMeals({p:diet.pT,c:diet.cT,f:diet.fT},ings);
+      diet.mealsR=genMeals({p:diet.pR,c:diet.cR,f:diet.fR},ings);
+      diet.adjustedAt=Date.now();diet.adjNote=w.pendingAdj.reason;
+      zsSet(KEYS.DIET,diet);
+    }
+    w.adjApplied=true;weekly[idx]=w;zsSet(KEYS.WEEKLY,weekly);
+  });
+}
+
+/* ============ MODULE 6: GUIDE ============ */
+function renderGuide(){
+  var html='<div class="sec-head"><h2>使用指南</h2><span class="cap">GUIDE</span></div>';
+  html+='<div class="card"><div class="card-head"><b>云端同步与数据迁移</b><span>实时自动 · 跨设备一致</span></div>';
+  html+='<div class="sync-grid">';
+  html+='<div class="sync-col"><h4>当前工作台</h4>';
+  html+='<div id="ws-link" style="font-size:12.5px;line-height:1.9;word-break:break-all;color:var(--c-p);margin-bottom:8px"></div>';
+  html+='<div class="btn-row"><button class="solid sm" id="sync-migrate">一键迁移本机旧数据</button><button class="ghost sm" id="sync-copy-link">复制本链接</button></div>';
+  html+='<div class="sync-hint">同一链接在手机 / 电脑打开即同一份数据，实时同步。下方可把升级前浏览器里残留的旧数据迁入云端，或导入 / 导出备份。</div></div>';
+  html+='<div class="sync-col"><h4>备份 / 导入</h4><textarea id="sync-import" placeholder="粘贴此前导出的备份 JSON，或旧版 ZS5 同步码"></textarea><div class="btn-row"><button class="solid sm" id="sync-dl">下载云端备份</button><button class="ghost sm" id="sync-merge">合并导入</button><button class="ghost sm" id="sync-replace">覆盖导入</button><button class="ghost sm" id="sync-pick">选择文件</button></div><input type="file" id="sync-file" class="sync-file" accept=".json,.txt"></div>';
+  html+='</div>';
+  html+='<div class="sync-status" id="sync-status"></div>';
+  html+='<div class="note">导入说明：合并导入按 key 级「较新一方」生效（自动保留两边各自更新的部分）；覆盖导入以导入内容为准替换当前工作台。升级前的旧数据建议先用「一键迁移本机旧数据」。</div></div>';
+  html+='<div class="card"><div class="card-head"><b>数据存储方式</b><span>云端持久化</span></div>';
+  html+='<div style="padding:16px 22px;font-size:13.5px;line-height:2">本工作台已升级为<b>云端在线应用</b>：所有数据（身体数据、训练目标、计划截止日期、营养素参数、每日三大营养素目标、完整饮食计划与食材库、7 天训练循环与动作、每日体重 / 步数 / 打卡、训练反馈文字与上传图片、周度复盘报告、答疑记录与所有已确认的方案修改）统一存储在<b>云端数据库</b>，按专属链接隔离，<b>不再依赖浏览器本地存储</b>。<br><br>每次录入 / 修改 / 删除都<b>自动实时上传云端</b>，无需手动点击同步；手机与电脑切换访问时自动拉取最新数据，多设备完全一致。网络不佳时先在本地暂存，恢复后自动批量补传，操作不丢失。上传的图片保存在云端对象存储，跨设备可正常加载查看。</div>';
+  html+='</div>';
+  html+='<div class="card"><div class="card-head"><b>各模块说明</b></div><div class="rule-list">';
+  html+='<div class="ri"><span class="no">01</span><span><b>今日任务</b>：进入工作台的默认首页。顶部大字号分色块展示当日三大营养素目标（按循环定位自动区分训练日/休息日）；中部精简三餐推荐可一键跳转饮食计划；底部上传训练截图/照片并用自然语言描述实际完成情况，提交后自动生成当日训练总结（完成度评估/执行建议/数据同步记录）与明日训练提示，数据自动同步全平台，无需手动二次操作。</span></div>';
+  html+='<div class="ri"><span class="no">02</span><span><b>制定计划</b>：填写身体数据与训练目标，点击保存并生成后自动计算 BMR、TDEE、热量缺口与三大营养素。选择「计划截止日期」后，缺口节奏、趋势统计周期与复盘循环均按总时长倒推规划；营养素旁附完整计算依据。「全局答疑」窗口可提问本模块任何内容（身体数据/目标设定/周期安排/计算逻辑/设计思路），涉及方案调整时先确认后执行、全平台同步。</span></div>';
+  html+='<div class="ri"><span class="no">03</span><span><b>饮食计划</b>：顶部热量与三大营养素目标常驻悬浮（分色块展示）。三餐食谱开放全量编辑——改写食材（输入自动带出营养库参数）、增删每餐食材、调整克重；修改后系统按当日营养素总目标自动重算各食材推荐克重，确保全日摄入符合目标。食谱仅从「我的常用食材」生成并每周轮换。</span></div>';
+  html+='<div class="ri"><span class="no">04</span><span><b>训练计划</b>：7 天循环统一标注「第一天~第七天」，不绑定自然周，可自定义循环起始日期；每日标题完全开放自由填写（训练部位/类型/或直接写「休息日」）。点击任意日期格自由切换训练/休息（即时生效、可回退）；动作支持增、删、改参数及自定义动作；每次修改后自动弹出 4 维合理性评估（部位均衡 / 容量 / 恢复 / 目标匹配）。</span></div>';
+  html+='<div class="ri"><span class="no">05</span><span><b>数据趋势与周度复盘</b>：每日体重打卡（折线图标注每日数据与每周平均体重点位）、步数录入、本周平均体重与上周差值直观对比。对话式复盘与图片上传整合于此；每完成一个完整 7 天循环自动生成整周综合复盘（训练完成率、体重变化总结、饮食执行评估、优化方向建议），如需调整饮食与训练计划，先向你确认、同意后再同步全平台。</span></div>';
+  html+='</div></div>';
+  html+='<div class="card"><div class="card-head"><b>RPE 强度判断</b><span>上限 RPE 8</span></div><table class="wt-table"><tr><th>RPE</th><th>含义</th><th>做法</th></tr><tr><td>6</td><td>还能做4次以上</td><td>热身组</td></tr><tr><td>7</td><td>还能做3次</td><td>正式组常用</td></tr><tr><td>8</td><td>还能做2次</td><td>本周期上限</td></tr></table></div>';
+  html+='<div class="card"><div class="card-head"><b>安全边界</b><span>三条红线</span></div><div class="rule-list"><div class="ri"><span class="no">01</span><span>腰部：不做深蹲、硬拉、弯腰类动作，下肢全部使用固定器械。</span></div><div class="ri"><span class="no">02</span><span>肩部：不做肩上推，卧推控制重量和姿势，用侧平举和面拉代替推举类。</span></div><div class="ri"><span class="no">03</span><span>疼痛红线：训练中出现刺痛、放射痛或持续不适，立即停止该动作。</span></div></div></div>';
+  $('m6').innerHTML=html;
+  var wl=$('ws-link');if(wl)wl.textContent=location.href;
+  $('sync-migrate').onclick=migrateLocalToCloud;
+  $('sync-copy-link').onclick=function(){copyText(location.href,'链接已复制');};
+  $('sync-dl').onclick=downloadCloudBackup;
+  $('sync-merge').onclick=function(){doImport('merge');};
+  $('sync-replace').onclick=function(){doImport('replace');};
+  $('sync-pick').onclick=function(){$('sync-file').click();};
+  $('sync-file').addEventListener('change',function(){var f=this.files&&this.files[0];if(!f)return;var fr=new FileReader();var self=this;fr.onload=function(){$('sync-import').value=String(fr.result||'');syncStat('已读取文件，请点导入。');};fr.onerror=function(){syncStat('读取失败。',true);};fr.readAsText(f,'utf-8');self.value='';});
+  syncStats();
+}
+function copyText(t,ok){var fb=function(){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');syncStat(ok);}catch(e){syncStat('复制失败。',true);}document.body.removeChild(ta);};try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){syncStat(ok);},fb);}else fb();}catch(e){fb();}}
+function syncStat(msg,isErr){var el=$('sync-status');if(!el)return;el.className='sync-status '+(isErr?'err':'ok');el.textContent=msg;}
+function syncStats(){var p=zsGet(KEYS.PROFILE,null);var wt=zsGet(KEYS.WEIGHT,[]);var rv=zsGet(KEYS.REVIEWS,[]);var st=CLOUD.online?'云端已连接':'离线（本地缓存）';syncStat('数据状态：'+(p?'已建档':'未建档')+' · 体重 '+wt.length+' 条 · 复盘 '+rv.length+' 条 · '+st);}
+/* 迁移本机旧数据（升级前浏览器残留的 zs5_* / zaoshen_*）到云端 */
+function migrateLocalToCloud(){
+  if(!CLOUD.token){syncStat('尚未连接云端。',true);return;}
+  var data={},mt2={},n=0;
+  SYNC_KEYS.concat([KEYS.MIGRATED,KEYS.SYNCLAST]).forEach(function(k){var v=_localGet(k);if(v==null)return;data[k]=v;mt2[k]=Date.now();n++;});
+  ['zaoshen_weight_v1','zaoshen_diet_v1','zaoshen_goals_v1','zaoshen_check_v1'].forEach(function(k){var v=_localGet(k);if(v==null)return;data[k]=v;mt2[k]=Date.now();n++;});
+  if(!n){syncStat('本机未检测到旧数据，无需迁移。');return;}
+  fetch('/api/migrate/'+encodeURIComponent(CLOUD.token),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:data,mt:mt2})})
+    .then(function(r){return r.json();}).then(function(res){syncStat('已迁移 '+n+' 项旧数据到云端，即将刷新…');setTimeout(function(){location.reload();},1200);})
+    .catch(function(){syncStat('迁移失败，请检查网络后重试。',true);});
+}
+/* 下载云端完整备份（导出为可再导入的 ZS5 文本） */
+function downloadCloudBackup(){
+  if(!CLOUD.token){syncStat('尚未连接云端。',true);return;}
+  fetch('/api/workspace/'+encodeURIComponent(CLOUD.token)).then(function(r){return r.json();}).then(function(res){
+    var payload={a:'zs5',v:2,t:Date.now(),d:(/Mobile|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)?'手机':'电脑'),mt:res.mt||{},data:res.data||{}};
+    var code='ZS5.'+b64e(JSON.stringify(payload));
+    try{var blob=new Blob([code],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='zs5-backup-'+todayStr()+'.txt';document.body.appendChild(a);a.click();document.body.removeChild(a);syncStat('云端备份已下载。');}catch(e){syncStat('下载失败。',true);}
+  }).catch(function(){syncStat('读取云端失败。',true);});
+}
+/* 从备份文本 / 旧版 ZS5 同步码导入到当前工作台 */
+function doImport(mode){
+  var txt=($('sync-import').value||'').replace(/^\uFEFF/,'').trim();if(!txt){syncStat('请先粘贴备份内容或选择文件。',true);return;}
+  var obj=null;
+  if(txt.indexOf('ZS5.')===0){try{obj=JSON.parse(b64d(txt.slice(4)));}catch(e){obj=null;}}
+  if(!obj){try{obj=JSON.parse(txt);}catch(e){obj=null;}}
+  if(!obj||(!obj.data&&!obj.a)){syncStat('内容无法识别。',true);return;}
+  var inc=obj.data||{},incMt=obj.mt||{};
+  var data={},mt2={};
+  Object.keys(inc).forEach(function(k){data[k]=inc[k];mt2[k]=(mode==='replace')?Date.now():(incMt[k]||Date.now());});
+  if(!CLOUD.token){syncStat('尚未连接云端。',true);return;}
+  fetch('/api/workspace/'+encodeURIComponent(CLOUD.token),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:data,mt:mt2})})
+    .then(function(r){return r.json();}).then(function(res){
+      Object.keys(res.data||{}).forEach(function(k){DB[k]=res.data[k];});Object.keys(res.mt||{}).forEach(function(k){mt[k]=res.mt[k]||0;});_saveMirror();
+      syncStat('导入成功（'+(mode==='merge'?'合并':'覆盖')+'），页面即将刷新…');setTimeout(function(){location.reload();},1200);
+    }).catch(function(){syncStat('导入失败，请检查网络后重试。',true);});
+}
+
+/* ============ REFRESH + MIGRATION + INIT ============ */
+function refreshAll(){renderToday();renderPlan();renderDiet();renderTraining();renderTrend();renderGuide();}
+function migrateOld(){
+  if(zsGet(KEYS.MIGRATED,false))return;
+  try{
+    var oldWt=JSON.parse(localStorage.getItem('zaoshen_weight_v1')||'null');
+    if(oldWt&&Array.isArray(oldWt)&&oldWt.length){zsSet(KEYS.WEIGHT,oldWt);}
+    var oldDiet=JSON.parse(localStorage.getItem('zaoshen_diet_v1')||'null');
+    if(oldDiet){var p={sex:oldDiet.sex||'m',age:parseInt(oldDiet.age)||25,height:parseFloat(oldDiet.h)||170,weight:parseFloat(oldDiet.w)||70,bf:parseFloat(oldDiet.bf)||0,activity:oldDiet.act||'1.375',weeklyDays:parseInt(oldDiet.freq)||3,progress:oldDiet.prog||'new',injuries:'下背部旧伤（不做深蹲/硬拉/弯腰类）；右肩袖轻度损伤（不做肩上推，控制卧推重量）'};zsSet(KEYS.PROFILE,p);}
+    var oldGoal=JSON.parse(localStorage.getItem('zaoshen_goals_v1')||'null');
+    if(oldGoal&&oldGoal.items){var g=DEF_GOAL;g.items=oldGoal.items;zsSet(KEYS.GOAL,g);}
+    var oldChk=JSON.parse(localStorage.getItem('zaoshen_check_v1')||'null');
+    if(oldChk&&typeof oldChk==='object'){zsSet(KEYS.CHECK,oldChk);}
+  }catch(e){}
+  zsSet(KEYS.MIGRATED,true);
+}
+
+/* 云端启动：先拉取云端数据（失败回退本地镜像），再执行原有迁移与渲染 */
+cloudInit(function(){
+migrateOld();
+initNav();
+var _p=zsGet(KEYS.PROFILE,null);
+if(_p&&!zsGet(KEYS.DIET,null)){generatePlans();}
+/* V3 迁移：训练日补 title 字段；初始化循环起始日期 */
+(function(){
+  var tr=zsGet(KEYS.TRAIN,null);
+  if(tr){var ch=false;tr.forEach(function(d){if(!d.title){d.title=d.bodyPart||'自定义';ch=true;}});if(ch)zsSet(KEYS.TRAIN,tr);}
+  if(!zsGet(KEYS.CYCLE,null))zsSet(KEYS.CYCLE,{start:todayStr()});
+})();
+/* 每周自动轮换三餐食谱（仅从用户食材库匹配）；旧版文本食谱自动升级为结构化可编辑食谱（保留已调整的营养素目标） */
+(function(){
+  var d0=zsGet(KEYS.DIET,null);
+  if(d0){
+    var wk0=Math.floor(Date.now()/604800000);
+    var needMeal=!d0.mealsT||!d0.mealsT.plan||!d0.mealsR||!d0.mealsR.plan;
+    if(d0.mealWeek!==wk0||needMeal){
+      var ings0=zsGet(KEYS.ING,DEF_ING);
+      d0.mealWeek=wk0;
+      d0.mealsT=genMeals({p:d0.pT,c:d0.cT,f:d0.fT},ings0);
+      d0.mealsR=genMeals({p:d0.pR,c:d0.cR,f:d0.fR},ings0);
+      zsSet(KEYS.DIET,d0);
+    }
+  }
+})();
+if(!zsGet(KEYS.ING,null)){zsSet(KEYS.ING,DEF_ING);}
+if(!zsGet(KEYS.TRAIN,null)&&_p){zsSet(KEYS.TRAIN,genTrainingPlan(_p));}
+renderToday();renderPlan();renderDiet();renderTraining();renderTrend();renderGuide();
+go('today');
+});
+})();
+</script>
+</body>
+</html>
