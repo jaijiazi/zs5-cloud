@@ -361,13 +361,13 @@ var NAV=[
 ];
 var WD=['周日','周一','周二','周三','周四','周五','周六'];
 var DAY_LABELS=['第一天','第二天','第三天','第四天','第五天','第六天','第七天'];
-var DEF_PROFILE={sex:'m',age:22,height:182,weight:104.5,bf:32.5,activity:'1.375',weeklyDays:5,progress:'new',injuries:'下背部旧伤（不做深蹲/硬拉/弯腰类）；右肩袖轻度损伤（不做肩上推，控制卧推重量）'};
-var DEF_GOAL={type:'fat_loss',targetWeight:85,duration:6,weeklyDays:5,deadline:'',items:[
-  {k:'ultimate',label:'终极目标',text:'体重降至 85kg 左右（BMI 约 25.7），体脂降到 20% 以下，肌肉量保持在 65kg 以上。'},
-  {k:'year',label:'年度方向',text:'6~12 个月内分 3~4 个周期渐进减重，每个周期 6 周；周期末复盘体重、体脂与训练数据，生成下一版计划。'},
-  {k:'cycle',label:'本周期目标',text:'减重 6~8kg（周均 1~1.5kg），五练完成率不低于 90%，W6 末复测制定下一周期计划。'},
-  {k:'train',label:'训练目标',text:'第 1 周校准重量，第 2 周起双进阶，腰肩全程零疼痛。'},
-  {k:'floor',label:'执行底线',text:'睡眠不少于 7 小时，状态骤降时切换温和版饮食，任何疼痛红线立即停止。'}
+var DEF_PROFILE={sex:'m',age:25,height:175,weight:70,bf:0,activity:'1.375',weeklyDays:3,progress:'new',injuries:''};
+var DEF_GOAL={type:'fat_loss',targetWeight:70,duration:6,weeklyDays:3,deadline:'',items:[
+  {k:'ultimate',label:'终极目标',text:'按个人情况设定目标体重，体脂降到健康区间，保持肌肉量。'},
+  {k:'year',label:'年度方向',text:'分阶段渐进达成目标，每个阶段末复盘体重、体脂与训练数据，生成下一版计划。'},
+  {k:'cycle',label:'本周期目标',text:'按节奏稳步减重，训练完成率不低于 90%，阶段末复测制定下一周期计划。'},
+  {k:'train',label:'训练目标',text:'第 1 周校准重量，第 2 周起渐进进阶，伤病部位全程零疼痛。'},
+  {k:'floor',label:'执行底线',text:'睡眠不少于 7 小时，状态骤降时调整饮食，任何疼痛红线立即停止。'}
 ]};
 var DEF_ING=[
   {id:'chicken',name:'鸡胸肉',cat:'蛋白',p:23,c:0,f:1,kcal:100,unit:'g',cook:'煎/煮/蒸'},
@@ -937,7 +937,7 @@ function renderPlan(){
       progress:$('pf-prog').value,injuries:$('pf-injuries').value};
     zsSet(KEYS.PROFILE,p);
     var g=zsGet(KEYS.GOAL,DEF_GOAL);
-    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||85;g.weeklyDays=p.weeklyDays;
+    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||70;g.weeklyDays=p.weeklyDays;
     var dlv=$('gf-deadline').value||'';g.deadline=dlv;
     if(dlv){g.duration=Math.max(1,Math.round((new Date(dlv+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/604800000));}
     else{g.duration=parseInt($('gf-dur').value)||6;}
@@ -949,7 +949,7 @@ function renderPlan(){
   $('gf-cancel').onclick=function(){renderPlan();};
   $('gf-save').onclick=function(){
     var g=zsGet(KEYS.GOAL,DEF_GOAL);
-    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||85;
+    g.type=$('gf-type').value;g.targetWeight=parseFloat($('gf-tw').value)||70;
     var dlv2=$('gf-deadline').value||'';g.deadline=dlv2;
     if(dlv2){g.duration=Math.max(1,Math.round((new Date(dlv2+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/604800000));}
     else{g.duration=parseInt($('gf-dur').value)||6;}
@@ -1616,7 +1616,7 @@ function renderTrend(){
     }
   }
   html+='<div class="card"><div class="card-head"><b>体重打卡</b><span>'+(wt.length?wt[wt.length-1].kg+' kg · 最新':'暂无记录')+'</span></div>';
-  html+='<div class="weight-form"><label class="field">日期<input id="wt-date" type="date" value="'+todayStr()+'"></label><label class="field">体重 kg<input id="wt-kg" type="number" step="0.1" min="35" max="200" placeholder="如 104.5"></label><button class="solid" id="wt-add">记录</button></div>';
+  html+='<div class="weight-form"><label class="field">日期<input id="wt-date" type="date" value="'+todayStr()+'"></label><label class="field">体重 kg<input id="wt-kg" type="number" step="0.1" min="35" max="200" placeholder="如 70"></label><button class="solid" id="wt-add">记录</button></div>';
   html+='<div class="chart-box" id="wt-chart"></div><div class="wk-diff" id="wk-diff" style="border-top:none;padding-top:0"></div><div id="wt-list"></div>';
   html+='<div class="note">建议每周同一时间称重。折线图上每个点为当日体重，橙色标记为每周平均体重点位；每满 7 天自动对比本周与上周平均体重。</div></div>';
   html+='<div class="card"><div class="card-head"><b>步数录入</b><span>'+(steps.length?steps[steps.length-1].steps+' 步 · 最新':'暂无记录')+'</span></div>';
@@ -1959,7 +1959,7 @@ function migrateOld(){
     var oldWt=JSON.parse(localStorage.getItem('zaoshen_weight_v1')||'null');
     if(oldWt&&Array.isArray(oldWt)&&oldWt.length){zsSet(KEYS.WEIGHT,oldWt);}
     var oldDiet=JSON.parse(localStorage.getItem('zaoshen_diet_v1')||'null');
-    if(oldDiet){var p={sex:oldDiet.sex||'m',age:parseInt(oldDiet.age)||25,height:parseFloat(oldDiet.h)||170,weight:parseFloat(oldDiet.w)||70,bf:parseFloat(oldDiet.bf)||0,activity:oldDiet.act||'1.375',weeklyDays:parseInt(oldDiet.freq)||3,progress:oldDiet.prog||'new',injuries:'下背部旧伤（不做深蹲/硬拉/弯腰类）；右肩袖轻度损伤（不做肩上推，控制卧推重量）'};zsSet(KEYS.PROFILE,p);}
+    if(oldDiet){var p={sex:oldDiet.sex||'m',age:parseInt(oldDiet.age)||25,height:parseFloat(oldDiet.h)||170,weight:parseFloat(oldDiet.w)||70,bf:parseFloat(oldDiet.bf)||0,activity:oldDiet.act||'1.375',weeklyDays:parseInt(oldDiet.freq)||3,progress:oldDiet.prog||'new',injuries:''};zsSet(KEYS.PROFILE,p);}
     var oldGoal=JSON.parse(localStorage.getItem('zaoshen_goals_v1')||'null');
     if(oldGoal&&oldGoal.items){var g=DEF_GOAL;g.items=oldGoal.items;zsSet(KEYS.GOAL,g);}
     var oldChk=JSON.parse(localStorage.getItem('zaoshen_check_v1')||'null');
