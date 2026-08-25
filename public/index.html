@@ -500,8 +500,12 @@ function cloudInit(done){
   if(!CLOUD.token){_createWS().then(function(t){CLOUD.token=t;_localSet('zs5_ws',t);_setURLToken(t);boot();}).catch(function(){boot();});}
   else{_localSet('zs5_ws',CLOUD.token);boot();}
 }
+function _clearMirror(){
+  try{_mirrorKeys().concat([KEYS.MTIME]).forEach(function(k){localStorage.removeItem(k);});}catch(e){}
+}
 function _loadAndRender(done){
   if(!CLOUD.token){_loadMirror();CLOUD.online=false;_setCloudStatus('local');done();return;}
+  _clearMirror();DB={};mt={};
   fetch('/api/workspace/'+encodeURIComponent(CLOUD.token)).then(function(r){return r.json();}).then(function(res){
     Object.keys(res.data||{}).forEach(function(k){DB[k]=res.data[k];});
     Object.keys(res.mt||{}).forEach(function(k){mt[k]=res.mt[k]||0;});
