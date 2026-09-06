@@ -243,8 +243,9 @@ button.sm{padding:7px 14px;font-size:12px}
 .ev-dim .ed-adv b{letter-spacing:.06em}
 .mb-foot{padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)}
 .mnav{display:none}
+@media(min-width:641px){.mnav{display:none!important}}
 @media(max-width:640px){
-  body{font-size:14.5px;padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+  body{font-size:14.5px;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
   #sidebar{display:none}
   #content{margin-left:0}
   .wrap{padding:0 16px}
@@ -279,10 +280,12 @@ button.sm{padding:7px 14px;font-size:12px}
   .chat-input{padding:12px 16px}
   .day-block li{padding:7px 16px}
   .day-block .db-head{padding:10px 16px}
-  .mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-top:1px solid var(--hairline);padding-bottom:env(safe-area-inset-bottom)}
-  .mnav button{flex:1;appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:10px;letter-spacing:.02em;padding:8px 1px 9px;color:var(--faint);line-height:1.4;text-align:center}
-  .mnav button .mn-no{display:block;font-family:var(--mono);font-size:8px;opacity:.5;margin-bottom:2px}
-  .mnav button.on{color:var(--accent);font-weight:700}
+  .mnav{display:flex;position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:50;background:var(--card);border:1px solid var(--hairline);border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,.08);padding:5px;gap:2px}
+  .mnav button{flex:1;appearance:none;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:9px;letter-spacing:.02em;padding:7px 2px 6px;color:var(--faint);line-height:1.3;text-align:center;border-radius:13px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s,background .2s}
+  .mnav button .mn-ico{width:19px;height:19px;display:block}
+  .mnav button .mn-ico svg{width:19px;height:19px;display:block}
+  .mnav button .mn-no{display:none;font-family:var(--mono);font-size:8px;opacity:.5;margin-bottom:2px}
+  .mnav button.on{color:var(--accent);font-weight:700;background:rgba(217,100,42,.10)}
 }
 /* ===== V2 mobile ===== */
 @media(max-width:640px){
@@ -339,6 +342,20 @@ button.sm{padding:7px 14px;font-size:12px}
   .fitness-strip{margin:12px 16px 0}
   .fs-item .fs-name{min-width:88px}
 }
+/* ===== 今日训练板块（今日页 · 当天动作清单） ===== */
+.tq-train{margin:0;border-radius:var(--r-lg);overflow:hidden;background:var(--card);border:1px solid var(--hairline);box-shadow:var(--shadow)}
+.tq-train .tt-head{padding:12px 22px 12px;border-bottom:1px solid var(--line);background:var(--soft)}
+.tq-train .tt-head b{font-size:13px;letter-spacing:.04em}
+.tq-train .tt-head span{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:8px}
+.tq-train .tt-list{padding:0}
+.tq-train .tt-ex{display:flex;align-items:baseline;gap:10px;padding:9px 22px;border-bottom:1px dashed var(--line);font-size:13px}
+.tq-train .tt-ex:last-child{border-bottom:none}
+.tq-train .tt-ex .tn{flex:1;min-width:0;font-weight:600}
+.tq-train .tt-ex .td{flex:none;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tq-train .tt-ex .tr{flex:none;font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+.tq-train .tt-rest{padding:14px 22px;font-size:13px;color:var(--ink-2);line-height:1.8}
+.tq-train .tt-empty{padding:14px 22px;font-size:13px;color:var(--faint);line-height:1.8}
+@media(max-width:640px){.tq-train .tt-head,.tq-train .tt-ex,.tq-train .tt-rest,.tq-train .tt-empty{padding-left:16px;padding-right:16px}}
 /* ===== V3: meal plan editor ===== */
 .mp-meal{border-bottom:1px solid var(--ink)}
 .mp-meal:last-child{border-bottom:none}
@@ -383,7 +400,7 @@ button.sm{padding:7px 14px;font-size:12px}
     </div>
   </main>
 </div>
-<nav id="mnav" data-page-node-id="1ZFcQFgVpgO9lLy4FgxFLd"></nav>
+<nav id="mnav" class="mnav" data-page-node-id="1ZFcQFgVpgO9lLy4FgxFLd"></nav>
 <script>
 (function(){
 'use strict';
@@ -760,7 +777,7 @@ function initNav(){
   var mnav=$('mnav');
   NAV.forEach(function(n){
     var b=document.createElement('button');
-    b.innerHTML='<span class="mn-no">'+n[1]+'</span>'+n[2];
+    b.innerHTML='<span class="mn-ico">'+n[3]+'</span><span class="mn-no">'+n[1]+'</span>'+n[2];
     b.setAttribute('data-p',n[0]);
     b.onclick=function(){go(n[0]);};
     mnav.appendChild(b);
@@ -808,6 +825,8 @@ function renderToday(){
   }
   /* 体测进度条（公安体测三项达标状态） */
   html+=fitnessStripHTML();
+  /* 今日训练板块（当天动作清单 / 休息提示） */
+  html+=todayTrainHTML(day,isT);
   /* 中部食谱简览区 */
   var mToday=diet?(isT?diet.mealsT:diet.mealsR):null;
   if(mToday&&mToday.plan){
@@ -914,6 +933,22 @@ function fitnessStripHTML(){
   var deadline=fit.deadline||'';
   var head=deadline?('距 '+deadline+' 前达标'):'体测目标';
   return '<div class="fitness-strip"><div class="fs-head"><b>公安体测进度</b><span>'+esc(head)+'</span></div>'+rows+'</div>';
+}
+/* ---- 今日训练板块：当天要练的动作清单 / 休息提示 ---- */
+function todayTrainHTML(day,isT){
+  var h='<div class="tq-train"><div class="tt-head"><b>今日训练</b><span>'+(isT?(day&&(day.title||day.bodyPart)?esc(day.title||day.bodyPart):'训练日'):'休息日')+'</span></div>';
+  if(!isT){
+    h+='<div class="tt-rest">今天是休息日。安排 20~40 分钟快走，蛋白吃满目标，睡足 7 小时帮助恢复。</div>';
+  }else if(day&&day.exercises&&day.exercises.length){
+    h+='<div class="tt-list">';
+    day.exercises.forEach(function(ex){
+      h+='<div class="tt-ex"><span class="tn">'+esc(ex.name)+'</span><span class="td">'+ex.sets+'×'+esc(ex.reps)+(ex.weight?' · '+esc(ex.weight)+'kg':'')+'</span><span class="tr">RPE '+esc(ex.rpe)+'</span></div>';
+    });
+    h+='</div>';
+  }else{
+    h+='<div class="tt-empty">该日暂未安排动作，可到「训练计划」页点开这一天手动添加。</div>';
+  }
+  return h+'</div>';
 }
 /* ---- 当日训练反馈解析：完成度 / 执行建议 / 数据同步 + 明日提示 ---- */
 function genDailyFeedback(text,images,pos,day){
