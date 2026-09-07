@@ -1104,7 +1104,7 @@ function renderPlan(){
   var profile=zsGet(KEYS.PROFILE,DEF_PROFILE);
   var goal=zsGet(KEYS.GOAL,DEF_GOAL);
   var diet=zsGet(KEYS.DIET,null);
-  var html='<div class="sec-head"><h2>制定健身饮食计划</h2><span class="cap">PLAN GENERATOR</span></div>';
+  var html='<div class="sec-head"><h2>制定健身饮食计划</h2><span class="cap">PLAN GENERATOR</span></div><div class="coach-line"><div class="cl-ico">教</div><div class="cl-body"><div class="cl-msg">填完身体数据点「保存并生成方案」，我按你的减脂目标算热量缺口（约 23%）。<b>体重按体脂秤实测填</b>更准。</div></div></div>';
   html+='<div class="card"><div class="card-head"><b>身体数据</b><span>全局数据源</span></div>';
   html+='<div class="form-grid">';
   html+=fSel('pf-sex','性别',[{v:'m',t:'男'},{v:'f',t:'女'}],profile.sex);
@@ -1373,7 +1373,7 @@ function applyMacroAdj(a){
 /* ============ MODULE 2: DIET ============ */
 function renderDiet(){
   var diet=zsGet(KEYS.DIET,null);
-  var html='<div class="sec-head"><h2>饮食计划</h2><span class="cap">DIET</span></div>';
+  var html='<div class="sec-head"><h2>饮食计划</h2><span class="cap">DIET</span></div><div class="coach-line"><div class="cl-ico">教</div><div class="cl-body"><div class="cl-msg">训练日 / 休息日热量已按你的缺口算好。蛋白优先、碳水围着训练排；吃不够会掉肌肉。</div></div></div>';
   if(!diet){$('m3').innerHTML=html+'<div class="empty-tip">请先在「制定计划」页填写身体数据并生成方案。</div>';return;}
   html+='<div class="sticky-macros">';
   html+='<div class="sm-cell"><div class="sm-k">训练日热量</div><div class="sm-v">'+diet.calT+'<small> kcal</small></div><div class="sm-s"><b style="color:var(--c-p)">蛋白 '+diet.pT+'g</b> · <b style="color:var(--c-c)">碳水 '+diet.cT+'g</b> · <b style="color:var(--c-f)">脂肪 '+diet.fT+'g</b></div></div>';
@@ -2028,7 +2028,7 @@ function renderTrend(){
   var train=zsGet(KEYS.TRAIN,[]);
   var tDays=train.filter(function(d){return d.isTraining;}).length;
   var cDays=Object.keys(checkin).length;
-  var html='<div class="sec-head"><h2>数据趋势与周度复盘</h2><span class="cap">TREND &amp; REVIEW</span></div>';
+  var html='<div class="sec-head"><h2>数据趋势与周度复盘</h2><span class="cap">TREND &amp; REVIEW</span></div><div class="coach-line"><div class="cl-ico">教</div><div class="cl-body"><div class="cl-msg">体重短期波动正常，重点看周均重趋势。连续 2 周无变化、或力量掉 &gt;10%，来找我复盘。</div></div></div>';
   html+='<div class="card"><div class="card-head"><b>四项追踪指标</b></div><div class="kv">';
   html+=cell2('体重记录',wt.length+' 条');
   html+=cell2('步数记录',steps.length+' 条');
@@ -2133,7 +2133,7 @@ var rvFiles=[];/* 复盘待上传图片（跨函数共享） */
 function renderReview(){
   var zone=$('rv-zone');if(!zone)return;
   var reviews=zsGet(KEYS.REVIEWS,[]);var weekly=zsGet(KEYS.WEEKLY,[]);
-  var html='<div class="card"><div class="card-head"><b>周度复盘录入 · 图片上传</b><span>身体状态/训练记录</span></div>';
+  var html='<div class="sec-head"><h2>训练复盘与状态</h2><span class="cap">REVIEW</span></div><div class="coach-line"><div class="cl-ico">教</div><div class="cl-body"><div class="cl-msg">每周末用对话式复盘回顾一次：训练完成度、体重、饮食达成。上传图片记录身体变化更直观。</div></div></div><div class="card"><div class="card-head"><b>周度复盘录入 · 图片上传</b><span>身体状态/训练记录</span></div>';
   html+='<div style="padding:16px 22px"><input type="file" id="rv-img" accept="image/*" multiple style="font-size:13px"><div id="rv-img-preview" style="margin-top:10px"></div></div>';
   html+='<div class="note">图片保存在本机浏览器，用于记录身体状态变化。超过 500KB 的图片建议压缩。</div></div>';
   html+='<div class="card"><div class="card-head"><b>周度复盘录入 · 对话式复盘</b><span>描述一次完整训练</span></div>';
@@ -2296,7 +2296,7 @@ function applyWeeklyAdj(idx){
 
 /* ============ MODULE 6: GUIDE ============ */
 function renderGuide(){
-  var html='<div class="sec-head"><h2>使用指南</h2><span class="cap">GUIDE</span></div>';
+  var html='<div class="sec-head"><h2>使用指南</h2><span class="cap">GUIDE</span></div><div class="coach-line"><div class="cl-ico">教</div><div class="cl-body"><div class="cl-msg">工作台已接入云端实时同步；换设备打开同一链接即同一份数据，旧数据可一键迁移。</div></div></div>';
   html+='<div class="card"><div class="card-head"><b>云端同步与数据迁移</b><span>实时自动 · 跨设备一致</span></div>';
   html+='<div class="sync-grid">';
   html+='<div class="sync-col"><h4>当前工作台</h4>';
